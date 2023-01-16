@@ -11,36 +11,36 @@ namespace _customunit
     {
         #region attribute
 
-        private Dictionary<Guid, List<Object>> _unitcontainer = new Dictionary<Guid, List<Object>>() { };
+        private Dictionary<Guid, List<Object>> _unit_container = new Dictionary<Guid, List<Object>>() { };
 
         #endregion
 
         #region Functionality named Module Operations
 
-        private void _addinstanceobjecttomodulescontainer(Object? _instance)
+        private void _add_instance_to_unit_container(Object? _instance)
         {
-            if (this._unitcontainer != null)
+            if (this._unit_container != null)
             {
+                // block ; start
                 if (_instance != null)
                 {
-                    Object _newinstance = _instance ?? new Object();
-
-                    Guid _unitguid = _newinstance.GetType().GUID;
-                    // add new unit guid , if not already added
-                    if (!_unitcontainer.ContainsKey(_unitguid))
+                    Guid _guid = _instance.GetType().GUID;
+                    // add new unit off guid , if not already added
+                    if (!_unit_container.ContainsKey(_guid))
                     {
-                        _unitcontainer.Add(_unitguid, new List<Object>());
+                        _unit_container.Add(_guid, new List<Object>());
                     }
                     // now , connect instance to guid respective
-                    if (_unitcontainer.ContainsKey(_unitguid))
+                    if (_unit_container.ContainsKey(_guid))
                     {
-                        _unitcontainer[_unitguid].Add(_newinstance);
+                        _unit_container[_guid].Add(_instance);
                     }
                 }
                 else
                 {
                     throw new Exception("Provided instance is null");
                 }
+                // block ; end
             }
             else
             {
@@ -196,7 +196,7 @@ namespace _customunit
                 Object? _instanceobject_student = _module_student._haveaninstance();
 
                 // adding the newly created instance to module container
-                this._addinstanceobjecttomodulescontainer(_instanceobject_student);
+                this._add_instance_to_unit_container(_instanceobject_student);
 
                 // assigning sample values to the properties of the newly created instance
                 Type _instance_student = _instanceobject_student?.GetType() ?? typeof(Nullable);
@@ -221,7 +221,7 @@ namespace _customunit
                 );
                 _builddynamicmodule _module_scholar = new _builddynamicmodule(_samplemoduleconfiguration_scholar);
                 Object? _instanceobject_scholar1 = _module_scholar._haveaninstance();
-                this._addinstanceobjecttomodulescontainer(_instanceobject_scholar1);
+                this._add_instance_to_unit_container(_instanceobject_scholar1);
                 // assigning sample values to the properties of the newly created instance
                 Type _instance_scholar1 = _instanceobject_scholar1?.GetType() ?? typeof(Nullable);
                 if (_instanceobject_scholar1 != null && _instance_scholar1 != typeof(Nullable) && _instanceobject_student != null)
@@ -232,7 +232,7 @@ namespace _customunit
                     this._setpropertyvalue(_instance_scholar1.GetProperty("_isactive"), _instanceobject_scholar1, true);
                 }
                 Object? _instanceobject_scholar2 = _module_scholar._haveaninstance();
-                this._addinstanceobjecttomodulescontainer(_instanceobject_scholar2);
+                this._add_instance_to_unit_container(_instanceobject_scholar2);
                 // assigning sample values to the properties of the newly created instance
                 Type _instance_scholar2 = _instanceobject_scholar2?.GetType() ?? typeof(Nullable);
                 if (_instanceobject_scholar2 != null && _instance_scholar2 != typeof(Nullable))
