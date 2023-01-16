@@ -8,22 +8,25 @@ namespace _customunit
 	{
 		#region attribute
 
-		readonly _configuration _configuration;
-		TypeBuilder? _type { get; set; }
+		private readonly _configuration _configuration;
+		private TypeBuilder? _type { get; set; }
 
 		#endregion
 
 		#region constructor
 
 		/// <summary>
-		/// Build a dynamic unit
+		/// construct this unit
 		/// </summary>
-		/// <param name="_configuration">unit configuration</param>
+		/// <param name="_configuration">this unit configuration</param>
 		public _customunit(_configuration _configuration)
 		{
 			this._configuration = _configuration;
 
-			this._preparestructure();
+			if (this._checkconfiguration())
+			{
+				this._proceed();
+			}
 		}
 
 		#endregion
@@ -31,22 +34,22 @@ namespace _customunit
 		#region private
 
 		/// <summary>
-		/// Prepare Unit Structure
+		/// check configuration
 		/// </summary>
-		private void _preparestructure()
+		private bool _checkconfiguration()
 		{
-			// Check if configuration file not null
+			// check if configuration file not null
 			if (this._configuration != null)
 			{
-				// Check if name of the unit not null
+				// check if name of this unit not null
 				if (!string.IsNullOrEmpty(this._configuration._unitname))
 				{
 					bool _ispropertiescompliant = true;
 
-					// Check if properties not null
+					// check if properties of this unit not null
 					if (this._configuration._properties != null)
 					{
-						// Check if properties are compliant
+						// check if properties of this unit are compliant
 						foreach (_propertyconfiguration _property in this._configuration._properties)
 						{
 							if (
@@ -58,102 +61,144 @@ namespace _customunit
 							}
 						}
 
-						// Preparing the unit
-						if (_ispropertiescompliant)
+                        // return configuration checked as valid
+                        if (_ispropertiescompliant)
 						{
-							// Define initial structure of unit
-							this._defineunit();
-
-							// Define unit constructor
-							this._defineunitconstructor();
-
-							foreach (_propertyconfiguration _property in this._configuration._properties)
-							{
-								// Define this property
-								this._defineunitproperty(_property._type, _property._name);
-							}
+							return true;
 						}
 					}
 					else if (!_ispropertiescompliant)
 					{
-						throw new Exception("Property(s) of unit is/are not compliant in unit configuration file.");
+						throw new Exception("Property(s) of this unit is/are not compliant in provided unit configuration file.");
 					}
 					else
 					{
-						throw new Exception("Property(s) of unit returned null in unit configuration file.");
+						throw new Exception("Property(s) of this unit returned null in provided unit configuration file.");
 					}
 				}
 				else
 				{
-					throw new Exception("Name of unit returned null or empty in unit configuration file.");
+					throw new Exception("Name of this unit returned null or empty in provided unit configuration file.");
 				}
 			}
 			else
 			{
-				throw new Exception("returned null in unit configuration file.");
+				throw new Exception("Unit configuration file not provided.");
 			}
+			return false;
 		}
 
 		/// <summary>
-		/// Assembly Definition
+		/// proceed to create this unit , detail
+		/// </summary>
+		private void _proceed()
+		{
+            // define startup structure of this unit
+            this._defineunit();
+
+            // define this unit off constructor
+            this._defineunitconstructor();
+			
+			// define this unit off properties
+            foreach (_propertyconfiguration _property in this._configuration._properties)
+            {
+                this._defineunitproperty(_property._type, _property._name); // TODO: instead , pass object off _propertyconfiguration
+            }
+        }
+
+		/// <summary>
+		/// carete this unit off assembly definition
 		/// </summary>
 		private void _defineunit()
 		{
 			AssemblyName _assemblyname = new AssemblyName(this._configuration._unitname);
-			AssemblyBuilder _assembly = AssemblyBuilder.DefineDynamicAssembly(_assemblyname, AssemblyBuilderAccess.Run);
+			AssemblyBuilder _assembly = AssemblyBuilder.DefineDynamicAssembly(_assemblyname, AssemblyBuilderAccess.RunAndCollect);
 
 			ModuleBuilder _unit = _assembly.DefineDynamicModule(this._configuration._unitname);
-			this._type = _unit.DefineType(_assemblyname.FullName, TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit | TypeAttributes.AutoLayout, null);
+			this._type = _unit.DefineType(_assemblyname.FullName,
+				TypeAttributes.Public |
+				TypeAttributes.Class |
+				TypeAttributes.AutoClass |
+				TypeAttributes.AnsiClass |
+				TypeAttributes.BeforeFieldInit |
+				TypeAttributes.AutoLayout,
+				null
+			);
 		}
-
-		private void _defineunitproperty(Type _propertytype, string _propertyname)
-		{
-			if (this._type != null)
-			{
-				// basic field
-				FieldBuilder _field = this._type.DefineField("_field" + _propertyname, _propertytype, FieldAttributes.Private);
-
-				// get method for basic field
-				MethodBuilder _get_method = this._type.DefineMethod("_get" + _propertyname, MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, _propertytype, Type.EmptyTypes);
-				ILGenerator _get_immediatelanguage = _get_method.GetILGenerator();
-				_get_immediatelanguage.Emit(OpCodes.Ldarg_0);
-				_get_immediatelanguage.Emit(OpCodes.Ldfld, _field);
-				_get_immediatelanguage.Emit(OpCodes.Ret);
-
-				// set method for basic field
-				MethodBuilder _set_method = this._type.DefineMethod("_set" + _propertyname, MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, null, new[] { _propertytype });
-				ILGenerator _set_immediatelanguage = _set_method.GetILGenerator();
-				Label _modifyproperty = _set_immediatelanguage.DefineLabel();
-				Label _exitset = _set_immediatelanguage.DefineLabel();
-				_set_immediatelanguage.MarkLabel(_modifyproperty);
-				_set_immediatelanguage.Emit(OpCodes.Ldarg_0);
-				_set_immediatelanguage.Emit(OpCodes.Ldarg_1);
-				_set_immediatelanguage.Emit(OpCodes.Stfld, _field);
-				_set_immediatelanguage.Emit(OpCodes.Nop);
-				_set_immediatelanguage.MarkLabel(_exitset);
-				_set_immediatelanguage.Emit(OpCodes.Ret);
-
-				// attaching newly created basic field to new property
-				PropertyBuilder _property = this._type.DefineProperty(_propertyname, PropertyAttributes.HasDefault, _propertytype, null);
-				_property.SetGetMethod(_get_method);
-				_property.SetSetMethod(_set_method);
-			}
-		}
-
-		private void _defineunitconstructor()
-		{
-			this._type?.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
-		}
-
-		#endregion
-
-		#region public
 
 		/// <summary>
-		/// Create a new instance of the dynamic unit
+		/// create this unit off constructor
 		/// </summary>
-		/// <returns>Object (nullable)</returns>
-		public Object? _haveaninstance()
+		private void _defineunitconstructor()
+		{
+			this._type?.DefineDefaultConstructor(
+				MethodAttributes.Public |
+				MethodAttributes.SpecialName |
+				MethodAttributes.RTSpecialName
+			);
+		}
+
+        /// <summary>
+        /// create this unit off properties
+        /// </summary>
+        /// <param name="_propertytype"></param>
+        /// <param name="_propertyname"></param>
+        private void _defineunitproperty(Type _propertytype, string _propertyname)
+        {
+            if (this._type != null)
+            {
+				// TODO: consider renaming conventions here
+                // basic field
+                FieldBuilder _field = this._type.DefineField("_field" + _propertyname, _propertytype, FieldAttributes.Private);
+
+                // get method for basic field
+                MethodBuilder _get_method = this._type.DefineMethod("_get" + _propertyname,
+					MethodAttributes.Public |
+					MethodAttributes.SpecialName |
+					MethodAttributes.HideBySig,
+					_propertytype,
+					Type.EmptyTypes
+				);
+                ILGenerator _get_immediatelanguage = _get_method.GetILGenerator();
+                _get_immediatelanguage.Emit(OpCodes.Ldarg_0);
+                _get_immediatelanguage.Emit(OpCodes.Ldfld, _field);
+                _get_immediatelanguage.Emit(OpCodes.Ret);
+
+                // set method for basic field
+                MethodBuilder _set_method = this._type.DefineMethod("_set" + _propertyname,
+					MethodAttributes.Public |
+					MethodAttributes.SpecialName |
+					MethodAttributes.HideBySig,
+					null,
+					new[] { _propertytype }
+				);
+                ILGenerator _set_immediatelanguage = _set_method.GetILGenerator();
+                Label _modifyproperty = _set_immediatelanguage.DefineLabel();
+                Label _exitset = _set_immediatelanguage.DefineLabel();
+                _set_immediatelanguage.MarkLabel(_modifyproperty);
+                _set_immediatelanguage.Emit(OpCodes.Ldarg_0);
+                _set_immediatelanguage.Emit(OpCodes.Ldarg_1);
+                _set_immediatelanguage.Emit(OpCodes.Stfld, _field);
+                _set_immediatelanguage.Emit(OpCodes.Nop);
+                _set_immediatelanguage.MarkLabel(_exitset);
+                _set_immediatelanguage.Emit(OpCodes.Ret);
+
+                // attaching newly created basic field to new property
+                PropertyBuilder _property = this._type.DefineProperty(_propertyname, PropertyAttributes.HasDefault, _propertytype, null);
+                _property.SetGetMethod(_get_method);
+                _property.SetSetMethod(_set_method);
+            }
+        }
+
+        #endregion
+
+        #region public
+
+        /// <summary>
+        /// create this unit off a new instance runtime
+        /// </summary>
+        /// <returns>Object</returns>
+        public Object? _haveaninstance()
 		{
 			Object? _instanceobject = null;
 			try
