@@ -5,115 +5,116 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace _customunit
+namespace _unit
 {
     public class _test
     {
         #region attribute
 
-        private Dictionary<Guid, List<Object>> _unit_container = new Dictionary<Guid, List<Object>>() { };
+        private Dictionary<Guid, List<Object>> _unitcontainer = new Dictionary<Guid, List<Object>>() { };
 
         #endregion
 
         #region Functionality named Module Operations
 
-        private void _add_instance_to_unit_container(Object? _instance)
+        private void _unitcontainerassign(Object _instance)
         {
-            if (this._unit_container != null)
+            if (this._unitcontainer != null)
             {
-                // block ; start
+                // block , start
                 if (_instance != null)
                 {
                     Guid _guid = _instance.GetType().GUID;
                     // add new unit off guid , if not already added
-                    if (!_unit_container.ContainsKey(_guid))
+                    if (!_unitcontainer.ContainsKey(_guid))
                     {
-                        _unit_container.Add(_guid, new List<Object>());
+                        _unitcontainer.Add(_guid, new List<Object>());
                     }
                     // now , connect instance to guid respective
-                    if (_unit_container.ContainsKey(_guid))
+                    if (_unitcontainer.ContainsKey(_guid))
                     {
-                        _unit_container[_guid].Add(_instance);
+                        _unitcontainer[_guid].Add(_instance);
                     }
                 }
                 else
                 {
                     throw new Exception("Provided instance is null");
                 }
-                // block ; end
+                // block , end
             }
             else
             {
                 throw new Exception("Provided container off instance is null");
             }
         }
-
-        private void _traversemodules(char _instanceoperation)
+        
+        public void _traversemodules(char _operation)
         {
-            // traverse the module container
-            if (this._modulescontainer != null)
+            // unitcontainer , traverse
+            if (this._unitcontainer != null)
             {
-                int _modulecount = 0; // module counter
+                // block , start
 
-                // loop through modules (if any) found in module container
-                foreach (KeyValuePair<Guid, List<Object>> _modulecontainer in _modulescontainer)
+                int _unitcount = 0; // unit counter
+                // unitcategory , loop through
+                foreach (KeyValuePair<Guid, List<Object>> _unitcategory in this._unitcontainer)
                 {
-                    string _message = string.Empty;
+                    string _message = _unitcount > 0 ? Environment.NewLine + Environment.NewLine : string.Empty;
 
-                    // module type
-                    Type? _module = _modulecontainer.Value[0].GetType();
+                    // unit order , output
+                    _message += "--(**unit (" + ++_unitcount + ".))" + Environment.NewLine;
 
-                    _message += _modulecount > 0 ? Environment.NewLine + Environment.NewLine : string.Empty;
+                    // unittype
+                    Type _unittype = _unitcategory.Value[0].GetType(); // retrieve unittype from first value of unitcategory
 
-                    // output module order number
-                    _message += "--(**module (" + ++_modulecount + ".))" + Environment.NewLine;
-                    // output module description
-                    _message += _module.FullName + " [" + _modulecontainer.Key + "]" + Environment.NewLine;
-                    _message += "[[[";
+                    // unittype , description
+                    _message += _unittype.FullName + " [" + _unitcategory.Key + "]" + Environment.NewLine + "[[[";
                     Console.Write(_message);
 
-                    int _instancecount = 0; // module counter
-
-                    // loop through each instances for the module (if any)
-                    foreach (Object _instanceobject in _modulecontainer.Value)
+                    int _instancecount = 0; // instance counter
+                    // instance , loop through
+                    foreach (Object _instance in _unitcategory.Value)
                     {
-                        // output instance order number
+                        // instance order , output
                         _message = Environment.NewLine + "\t(**instance (" + ++_instancecount + ".))" + Environment.NewLine;
-                        // output instance description
-                        _message += "\t" + _instanceobject.GetType().Name + " [" + _modulecontainer.Key + "]"; // TODO: add instance GUID here
+                        // instance , description
+                        _message += "\t" + _instance.GetType().Name + " [" + _unitcategory.Key + "]"; // TODO: add instance GUID here
                         Console.Write(_message);
 
                         // pass the instance object to action propagator
-                        int _objectindentcount = 0;
-                        this._instanceactions(_instanceobject, _instanceoperation, _objectindentcount, _modulecontainer.Key);
+                        int _indentcount = 0;
+                        this._instanceactions(_operation, _indentcount, _instance, _unitcategory.Key);
                     }
 
                     _message = Environment.NewLine + "]]]";
                     Console.Write(_message);
                 }
+
+                // block , end
             }
         }
-
-        private void _instanceactions(Object? _instanceobject, char _instanceoperation, int _objectindentcount, Guid _moduleguid)
+        
+        private void _instanceactions(char _operation, int _indentcount, Object _object, Guid _guid)
         {
-            if (_instanceobject != null)
+            if (_object != null)
             {
-                // set object indent
-                ++_objectindentcount; // it denotes this instances current level
-                string _objectindent = string.Empty;
-                for (int _index = 0; _index < _objectindentcount; _index++)
+                // instance , indent reset
+                ++_indentcount; // instance , indent level current
+                string _indentmessage = string.Empty;
+                for (int _index = 0; _index < _indentcount; _index++)
                 {
-                    _objectindent += "\t";
+                    _indentmessage += "\t";
                 }
 
-                Type _instance = _instanceobject.GetType();
+                Type _instance = _object.GetType();
 
                 string _message = string.Empty;
 
-                // output START
-                // add indent to START only if instance level is first
-                _message += (_objectindentcount == 1) ? _objectindent : string.Empty;
-                switch (_instanceoperation)
+                // block , start
+
+                // add indent reset only if instance level is first
+                _message += (_indentcount == 1) ? _indentmessage : string.Empty;
+                switch (_operation)
                 {
                     case 'c':
                         _message += " {";
@@ -129,7 +130,7 @@ namespace _customunit
 
                 int _propertycount = 0; // property counter
 
-                // loop through each property of instance (if any)
+                // property , loop through
                 foreach (PropertyInfo _property in _instance.GetProperties())
                 {
                     _message = string.Empty;
@@ -138,24 +139,24 @@ namespace _customunit
                     bool _ispropertysystemdefaulttype = _propertyconfiguration._ispropertysystemdefaulttype(_property.PropertyType);
 
                     // output property order number
-                    _message += Environment.NewLine + _objectindent + "\t(" + ++_propertycount + ".) ";
+                    _message += Environment.NewLine + _indentmessage + "\t(" + ++_propertycount + ".) ";
                     // output property description
                     // TODO: update GUID plated here with 'original' module GUID
-                    _message += _property.Name + " [" + (_ispropertysystemdefaulttype ? _property?.PropertyType.FullName : _moduleguid) + "]";
+                    _message += _property.Name + " [" + (_ispropertysystemdefaulttype ? _property?.PropertyType.FullName : _guid) + "]";
 
-                    switch (_instanceoperation)
+                    switch (_operation)
                     {
                         case 'c':
                             this._outputpropertyculturalbehaviour(_property);
                             break;
                         case 'o':
-                            string _propertyvalueinstring = this._getpropertyvalue(_property, _instanceobject)?.ToString() ?? "N/A (null)";
+                            string _propertyvalueinstring = this._getpropertyvalue(_property, _object)?.ToString() ?? "N/A (null)"; // TODO: 
                             _message += " = " + (!_propertyvalueinstring.Equals("N/A (null)") ? _ispropertysystemdefaulttype ? _propertyvalueinstring : string.Empty : _propertyvalueinstring);
                             break;
                         case 'i':
                             // TODO: take input from console
                             Object? _propertyvalue = new Object();
-                            this._setpropertyvalue(_property, _instanceobject, _propertyvalue);
+                            this._setpropertyvalue(_property, _object, _propertyvalue);
                             break;
                     }
 
@@ -164,86 +165,99 @@ namespace _customunit
                     // call a recursive here if it's (property) not a system default type
                     if (_property != null && !_ispropertysystemdefaulttype)
                     {
-                        int _objectindentcountnext = _objectindentcount;
-                        this._instanceactions(this._getpropertyvalue(_property, _instanceobject), _instanceoperation, _objectindentcountnext, _moduleguid);
+                        int _indentcountnext = _indentcount;
+                        this._instanceactions(_operation, _indentcountnext, this._getpropertyvalue(_property, _object), _guid); // TODO: 
                     }
                 }
 
-                // output END
-                Console.Write(Environment.NewLine + _objectindent + "}");
+                // block , end
+                Console.Write(Environment.NewLine + _indentmessage + "}");
             }
         }
-
-        private void _createsamplemodule()
+        
+        public void _createunit_loremipsum()
         {
-            // creating sample module configuration
-            _moduleconfiguration _samplemoduleconfiguration = new _moduleconfiguration(
-                "_student",
-                new List<_propertyconfiguration>() {
+            try
+            {
+                // block , start
+
+                // unit loremipsum , configuration
+                _unitconfiguration _loremipsumconfig = new _unitconfiguration(
+                    "_loremipsum",
+                    new List<_propertyconfiguration>() {
                     new _propertyconfiguration("Int32", "_id"),
                     new _propertyconfiguration("String", "_fullname"),
                     new _propertyconfiguration("String", "_address"),
-                    new _propertyconfiguration("Boolean", "_isdied")
-                }
-            );
+                    new _propertyconfiguration("Boolean", "_isdied"),
+                    new _propertyconfiguration("String", "_foo")
+                    }
+                );
 
-            try
-            {
-                // creating sample dynamic module
-                _builddynamicmodule _module_student = new _builddynamicmodule(_samplemoduleconfiguration);
+                // unit loremipsum , creating
+                _unit _loremipsum = new _unit(_loremipsumconfig);
 
-                // creating an arbitrary instance of newly created module
-                Object? _instanceobject_student = _module_student._haveaninstance();
+                // unit loremipsum , creating instance foobar
+                _instance _foobar = new _instance(_loremipsum);
 
-                // adding the newly created instance to module container
-                this._add_instance_to_unit_container(_instanceobject_student);
-
-                // assigning sample values to the properties of the newly created instance
-                Type _instance_student = _instanceobject_student?.GetType() ?? typeof(Nullable);
-                if (_instanceobject_student != null && _instance_student != typeof(Nullable))
+                // instance foobar , assiging value
+                if (_foobar != null)
                 {
-                    this._setpropertyvalue(_instance_student.GetProperty("_id"), _instanceobject_student, 796);
-                    this._setpropertyvalue(_instance_student.GetProperty("_fullname"), _instanceobject_student, "Debaprasad Tapader");
-                    this._setpropertyvalue(_instance_student.GetProperty("_address"), _instanceobject_student, "Deoghar, JH, IN");
-                    this._setpropertyvalue(_instance_student.GetProperty("_isdied"), _instanceobject_student, true);
+                    _foobar._setvalueset(new Dictionary<string, object?>() {
+                        {"_id", 796},
+                        {"_fullname", "Debaprasad Tapader"},
+                        {"_address", "Deoghar, JH, IN"},
+                        {"_isdead", true},
+                        {"_foo", null}
+                    });
+
+                    // unitcontainer , assigning foobar instance
+                    this._unitcontainerassign(_foobar);
                 }
 
+                // block , end
 
-                // Sampling dynamic module inside another dynamic module
-                _moduleconfiguration _samplemoduleconfiguration_scholar = new _moduleconfiguration(
-                    "_scholar",
-                    new List<_propertyconfiguration>() {
-                        new _propertyconfiguration(_instance_student, "_student"),
+                if (_foobar != null)
+                {
+                    // block , start
+
+                    _unitconfiguration _loremipsumseparateconfig = new _unitconfiguration(
+                        "_loremipsumseparate",
+                        new List<_propertyconfiguration>() {
+                        new _propertyconfiguration(_foobar.GetType(), "_loremipsum"),
                         new _propertyconfiguration("String", "_sector"),
                         new _propertyconfiguration("Int32", "_year"),
                         new _propertyconfiguration("Boolean", "_isactive")
-                    }
-                );
-                _builddynamicmodule _module_scholar = new _builddynamicmodule(_samplemoduleconfiguration_scholar);
-                Object? _instanceobject_scholar1 = _module_scholar._haveaninstance();
-                this._add_instance_to_unit_container(_instanceobject_scholar1);
-                // assigning sample values to the properties of the newly created instance
-                Type _instance_scholar1 = _instanceobject_scholar1?.GetType() ?? typeof(Nullable);
-                if (_instanceobject_scholar1 != null && _instance_scholar1 != typeof(Nullable) && _instanceobject_student != null)
-                {
-                    this._setpropertyvalue(_instance_scholar1.GetProperty("_student"), _instanceobject_scholar1, _instanceobject_student);
-                    this._setpropertyvalue(_instance_scholar1.GetProperty("_sector"), _instanceobject_scholar1, "Matter Design");
-                    this._setpropertyvalue(_instance_scholar1.GetProperty("_year"), _instanceobject_scholar1, 2003);
-                    this._setpropertyvalue(_instance_scholar1.GetProperty("_isactive"), _instanceobject_scholar1, true);
-                }
-                Object? _instanceobject_scholar2 = _module_scholar._haveaninstance();
-                this._add_instance_to_unit_container(_instanceobject_scholar2);
-                // assigning sample values to the properties of the newly created instance
-                Type _instance_scholar2 = _instanceobject_scholar2?.GetType() ?? typeof(Nullable);
-                if (_instanceobject_scholar2 != null && _instance_scholar2 != typeof(Nullable))
-                {
-                    this._setpropertyvalue(_instance_scholar2.GetProperty("_student"), _instanceobject_scholar2, null);
-                    this._setpropertyvalue(_instance_scholar2.GetProperty("_sector"), _instanceobject_scholar2, "Classic Culture");
-                    this._setpropertyvalue(_instance_scholar2.GetProperty("_year"), _instanceobject_scholar2, 2005);
-                    this._setpropertyvalue(_instance_scholar2.GetProperty("_isactive"), _instanceobject_scholar2, true);
-                }
+                        }
+                    );
+                    _unit _loremipsumseparate = new _unit(_loremipsumseparateconfig);
 
-                Console.Write("Sample Module Has Been Created. Congrats!");
+                    _instance _foobar101 = new _instance(_loremipsumseparate);
+                    if (_foobar101 != null)
+                    {
+                        _foobar101._setvalueset(new Dictionary<string, object?>() {
+                            {"_loremipsum", _foobar},
+                            {"_sector", "Matter Design"},
+                            {"_year", 2003},
+                            {"_isactive", true}
+                        });
+                        this._unitcontainerassign(_foobar101);
+                    }
+
+                    _instance _foobar201 = new _instance(_loremipsumseparate);
+                    if (_foobar201 != null)
+                    {
+                        _foobar201._setvalueset(new Dictionary<string, object?>() {
+                            {"_loremipsum", null},
+                            {"_sector", "Classic Culture"},
+                            {"_year", 2004},
+                            {"_isactive", true}
+                        });
+                        this._unitcontainerassign(_foobar201);
+                    }
+
+                    // block , end
+                }
+                Console.Write("unit loremipsum created");
             }
             catch (Exception _exception)
             {
@@ -292,7 +306,7 @@ namespace _customunit
         {
             // TODO: Make modules manually
         }
-
+        
         private void _outputpropertyculturalbehaviour(PropertyInfo? _property)
         {
             if (_property != null)

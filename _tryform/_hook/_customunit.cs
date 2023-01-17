@@ -2,24 +2,26 @@
 using System.Reflection.Emit;
 using Label = System.Reflection.Emit.Label;
 
-namespace _customunit
+namespace _unit
 {
-	public class _customunit
+	public class _unit
 	{
 		#region attribute
 
-		private readonly _configuration _configuration;
+		private readonly _unitconfiguration? _configuration;
 		private TypeBuilder? _type { get; set; }
 
 		#endregion
 
 		#region constructor
 
+		public _unit() { }
+
 		/// <summary>
 		/// construct this unit
 		/// </summary>
 		/// <param name="_configuration">this unit configuration</param>
-		public _customunit(_configuration _configuration)
+		public _unit(_unitconfiguration _configuration)
 		{
 			this._configuration = _configuration;
 
@@ -83,7 +85,7 @@ namespace _customunit
 			}
 			else
 			{
-				throw new Exception("Unit configuration file not provided.");
+				throw new Exception("Unit configuration file not provided at startup.");
 			}
 			return false;
 		}
@@ -194,35 +196,39 @@ namespace _customunit
 
         #region public
 
+		public _unitconfiguration? _getconfiguration()
+		{
+			return this._configuration;
+		}
+
         /// <summary>
         /// create this unit off a new instance runtime
         /// </summary>
-        /// <returns>Object</returns>
-        public Object? _haveaninstance()
+        /// <returns>instance or null on failure</returns>
+        internal Object? _createinstance()
 		{
-			Object? _instanceobject = null;
+			Object? _instance = null;
 			try
 			{
-				// Create an instance of the TypeBuilder
+				// create an instance of the TypeBuilder
 				Type _type = this._type?.CreateType() ?? typeof(Nullable);
 				if (_type != typeof(Nullable))
 				{
-					_instanceobject = Activator.CreateInstance(_type);
+					_instance = Activator.CreateInstance(_type);
 				}
 			}
 			catch (Exception _exception)
 			{
-				throw new Exception("Could not instantiate TypeBuilder", _exception);
+				throw new Exception("Could not create instance", _exception);
 			}
-			return _instanceobject;
+			return _instance;
 		}
 
 		#endregion
 	}
 
-	public class _configuration
+    public class _unitconfiguration
 	{
-
 		#region attribute
 
 		public string _unitname { get; set; }
@@ -233,11 +239,11 @@ namespace _customunit
         #region constructor
 
         /// <summary>
-        /// Unit configuration file
+        /// unit configuration
         /// </summary>
-        /// <param name="_unitname">Unit name</param>
-        /// <param name="_properties">Unit properties</param>
-        public _configuration(string _unitname, List<_propertyconfiguration> _properties)
+        /// <param name="_unitname">unit name</param>
+        /// <param name="_properties">unit properties</param>
+        public _unitconfiguration(string _unitname, List<_propertyconfiguration> _properties)
 		{
 			this._unitname = _unitname;
 			this._properties = _properties;
@@ -259,35 +265,35 @@ namespace _customunit
 		#region constructor
 
 		/// <summary>
-		/// Property configuration file
+		/// property configuration file
 		/// </summary>
-		/// <param name="_type">Type of the property</param>
-		/// <param name="_name">Property name</param>
+		/// <param name="_type">type of the property</param>
+		/// <param name="_name">property name</param>
 		public _propertyconfiguration(Type _type, string _name)
 		{
 			this._type = _type;
 			this._name = _name;
 		}
 
-		/// <summary>
-		/// Property configuration file
-		/// </summary>
-		/// <param name="_type">Type of the property system default</param>
-		/// <param name="_name">Property name</param>
-		public _propertyconfiguration(_systemdefaulttype _type, string _name)
-		{
-			this._type = this._getsystemtype(_type);
-			this._name = _name;
-		}
+        /// <summary>
+        /// property configuration file
+        /// </summary>
+        /// <param name="_systemdefalttype">type of the property , system default type in plain string</param>
+        /// <param name="_name">property name</param>
+        public _propertyconfiguration(string _systemdefalttype, string _name)
+        {
+            this._type = this._getsystemtypebystring(_systemdefalttype);
+            this._name = _name;
+        }
 
-		/// <summary>
-		/// Property configuration file
-		/// </summary>
-		/// <param name="_type">Type of the property system default in plain string</param>
-		/// <param name="_name">Property name</param>
-		public _propertyconfiguration(string _type, string _name)
+        /// <summary>
+        /// property configuration file
+        /// </summary>
+        /// <param name="_systemdefaulttype">type of the property , system default type in enum</param>
+        /// <param name="_name">property name</param>
+        public _propertyconfiguration(_systemdefaulttype _systemdefaulttype, string _name)
 		{
-			this._type = this._getsystemtypebystring(_type);
+			this._type = this._getsystemtypebyenum(_systemdefaulttype);
 			this._name = _name;
 		}
 
@@ -295,31 +301,36 @@ namespace _customunit
 
 		#region private
 
-		private Type _getsystemtype(_systemdefaulttype _systemdefaulttype)
+		private Type _getsystemtypebyenum(_systemdefaulttype _systemdefaulttype)
 		{
-			Type _type = typeof(System.Nullable);
-
-			string _typeunformatted = "System." + _systemdefaulttype.ToString();
-			_type = Type.GetType(_typeunformatted) ?? _type;
-
-			return _type;
-		}
+            return this._getsystemtype(_systemdefaulttype.ToString() ?? string.Empty);
+        }
 
 		private Type _getsystemtypebystring(string _systemdefaulttype)
 		{
-			Type _type = typeof(System.Nullable);
-
-			string _typeunformatted = "System." + _systemdefaulttype.ToString();
-			_type = Type.GetType(_typeunformatted) ?? _type;
-
-			return _type;
+			return this._getsystemtype(_systemdefaulttype);
 		}
 
-		#endregion
+        private Type _getsystemtype(string _typeinstring)
+        {
+            Type _type = typeof(System.Nullable);
 
-		#region public
+            string _typeunformatted = "System." + _typeinstring;
+            _type = Type.GetType(_typeunformatted) ?? _type;
 
-		public static bool _ispropertysystemdefaulttype(Type _type)
+            return _type;
+        }
+
+        #endregion
+
+        #region public
+
+		/// <summary>
+		/// check if provided type is a system default type
+		/// </summary>
+		/// <param name="_type">type</param>
+		/// <returns>result as true\false</returns>
+        public static bool _ispropertysystemdefaulttype(Type _type)
 		{
 			bool _issystemdefaulttype = false;
 
@@ -332,6 +343,69 @@ namespace _customunit
 			return _issystemdefaulttype;
 		}
 
-		#endregion
-	}
+        #endregion
+    }
+
+    public class _instance
+    {
+        private readonly Object _unit;
+        private readonly Object _entity;
+
+        public _instance(_unit _unit)
+        {
+			if (_unit != null)
+			{
+				// block , start
+				this._unit = _unit;
+				this._entity = _unit._createinstance() ?? throw new Exception("Instance not created.");
+				// block , end
+			}
+			else
+			{
+				throw new Exception("Provided unit is null.");
+			}
+        }
+
+        private void _setpropertyvalue(Object _entity, PropertyInfo _property, Object? _value)
+        {
+            if (_entity != null && _property != null)
+            {
+                try
+                {
+                    _property.SetValue(_entity, _value, null);
+                }
+                catch (Exception _exception)
+                {
+                    throw new Exception("EXCEPTION: " + _exception.Message);
+                }
+            }
+        }
+
+		public void _setvalueset(Dictionary<string, Object?> _valueset)
+		{
+            // assigning sample values to the properties of the newly created instance
+            if (this._entity != null)
+            {
+                Type _typeofentity = this._entity.GetType();
+				foreach (KeyValuePair<string, Object?> _value in _valueset)
+				{
+					PropertyInfo? _property = _typeofentity.GetProperty(_value.Key);
+					if (_property != null)
+                    {
+                        this._setpropertyvalue(this._entity, _property, _value.Value);
+                    }
+				}
+            }
+        }
+
+        public Object _retrieveunit()
+        {
+            return this._unit;
+        }
+
+        public Object _retrieveinstance()
+        {
+            return this._entity;
+        }
+    }
 }
