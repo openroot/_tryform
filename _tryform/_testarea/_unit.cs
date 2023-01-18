@@ -223,10 +223,10 @@ namespace _unit
                     _unitconfiguration _loremipsumseparateconfig = new _unitconfiguration(
                         "_loremipsumseparate",
                         new List<_propertyconfiguration>() {
-                        new _propertyconfiguration(_foobar.GetType(), "_loremipsum"),
-                        new _propertyconfiguration("String", "_sector"),
-                        new _propertyconfiguration("Int32", "_year"),
-                        new _propertyconfiguration("Boolean", "_isactive")
+                            new _propertyconfiguration(_loremipsum._retrieveunit(), "_loremipsum"),
+                            new _propertyconfiguration("String", "_sector"),
+                            new _propertyconfiguration("Int32", "_year"),
+                            new _propertyconfiguration("Boolean", "_isactive")
                         }
                     );
                     _unit _loremipsumseparate = new _unit(_loremipsumseparateconfig);

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using Label = System.Reflection.Emit.Label;
 
 namespace _unit
@@ -531,7 +532,7 @@ namespace _unit
         /// </summary>
         /// <param name="_valueset">valuset in form off Dictionary<string, object?></param>
         /// <exception cref="Exception"></exception>
-        public void _setvalueset(Dictionary<string, object?> _valueset)
+        public void _setvalueset(Dictionary<string, object?> _valueset, [Optional]Type _foreignentity)
 		{
             if (this._entity != null)
             {
@@ -541,8 +542,8 @@ namespace _unit
 					{
 						try
 						{
-							PropertyInfo? _property = this._entity.GetProperty(_value.Key);
-							if (_property != null)
+                            PropertyInfo? _property = this._entity.GetProperty(_value.Key);
+                            if (_property != null)
 							{
 								this._setpropertyvalue(this._entity, _property, _value.Value);
 							}
@@ -594,10 +595,10 @@ namespace _unit
         }
 
         /// <summary>
-        /// retrieve _instance type
+        /// retrieve _instance
         /// </summary>
-        /// <returns>_entity</returns>
-        public object _retrieveentity()
+        /// <returns>_instance</returns>
+        public Type _retrieveinstance()
         {
             return this._entity;
         }
