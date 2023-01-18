@@ -136,7 +136,7 @@ namespace _unit
                     _message = string.Empty;
 
                     // get if property is system default type
-                    bool _ispropertysystemdefaulttype = _propertyconfiguration._ispropertysystemdefaulttype(_property.PropertyType);
+                    bool _ispropertysystemdefaulttype = _propertyconfiguration._ispropertysystemdefault(_property.PropertyType);
 
                     // output property order number
                     _message += Environment.NewLine + _indentmessage + "\t(" + ++_propertycount + ".) ";

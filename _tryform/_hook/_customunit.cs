@@ -4,26 +4,27 @@ using Label = System.Reflection.Emit.Label;
 
 namespace _unit
 {
+	/// <summary>
+	/// _unit
+	/// </summary>
 	public class _unit
 	{
 		#region attribute
 
-		private readonly _unitconfiguration? _configuration;
-		private TypeBuilder? _type { get; set; }
+		public readonly _unitconfiguration _unitconfiguration;
+		private TypeBuilder? _typebuilder { get; set; }
 
 		#endregion
 
 		#region constructor
 
-		public _unit() { }
-
 		/// <summary>
 		/// construct this unit
 		/// </summary>
-		/// <param name="_configuration">this unit configuration</param>
-		public _unit(_unitconfiguration _configuration)
+		/// <param name="_unitconfiguration">this unit configuration</param>
+		public _unit(_unitconfiguration _unitconfiguration)
 		{
-			this._configuration = _configuration;
+			this._unitconfiguration = _unitconfiguration;
 
 			if (this._checkconfiguration())
 			{
@@ -35,24 +36,21 @@ namespace _unit
 
 		#region private
 
-		/// <summary>
-		/// check configuration
-		/// </summary>
 		private bool _checkconfiguration()
 		{
 			// check if configuration file not null
-			if (this._configuration != null)
+			if (this._unitconfiguration != null)
 			{
 				// check if name of this unit not null
-				if (!string.IsNullOrEmpty(this._configuration._unitname))
+				if (!string.IsNullOrEmpty(this._unitconfiguration._name))
 				{
 					bool _ispropertiescompliant = true;
 
 					// check if properties of this unit not null
-					if (this._configuration._properties != null)
+					if (this._unitconfiguration._properties != null)
 					{
 						// check if properties of this unit are compliant
-						foreach (_propertyconfiguration _property in this._configuration._properties)
+						foreach (_propertyconfiguration _property in this._unitconfiguration._properties)
 						{
 							if (
 								String.IsNullOrEmpty(_property._name) ||
@@ -90,9 +88,6 @@ namespace _unit
 			return false;
 		}
 
-		/// <summary>
-		/// proceed to create this unit , detail
-		/// </summary>
 		private void _proceed()
 		{
             // define startup structure of this unit
@@ -102,22 +97,19 @@ namespace _unit
             this._defineunitconstructor();
 			
 			// define this unit off properties
-            foreach (_propertyconfiguration _property in this._configuration._properties)
+            foreach (_propertyconfiguration _property in this._unitconfiguration._properties)
             {
                 this._defineunitproperty(_property._type, _property._name); // TODO: instead , pass object off _propertyconfiguration
             }
         }
 
-		/// <summary>
-		/// carete this unit off assembly definition
-		/// </summary>
 		private void _defineunit()
 		{
-			AssemblyName _assemblyname = new AssemblyName(this._configuration._unitname);
-			AssemblyBuilder _assembly = AssemblyBuilder.DefineDynamicAssembly(_assemblyname, AssemblyBuilderAccess.RunAndCollect);
+			AssemblyName _assemblyname = new AssemblyName(this._unitconfiguration._name);
+			AssemblyBuilder _assemblybuilder = AssemblyBuilder.DefineDynamicAssembly(_assemblyname, AssemblyBuilderAccess.RunAndCollect);
 
-			ModuleBuilder _unit = _assembly.DefineDynamicModule(this._configuration._unitname);
-			this._type = _unit.DefineType(_assemblyname.FullName,
+			ModuleBuilder _unit = _assemblybuilder.DefineDynamicModule(this._unitconfiguration._name);
+			this._typebuilder = _unit.DefineType(_assemblyname.FullName,
 				TypeAttributes.Public |
 				TypeAttributes.Class |
 				TypeAttributes.AutoClass |
@@ -128,37 +120,29 @@ namespace _unit
 			);
 		}
 
-		/// <summary>
-		/// create this unit off constructor
-		/// </summary>
 		private void _defineunitconstructor()
 		{
-			this._type?.DefineDefaultConstructor(
+			this._typebuilder?.DefineDefaultConstructor(
 				MethodAttributes.Public |
 				MethodAttributes.SpecialName |
 				MethodAttributes.RTSpecialName
 			);
 		}
 
-        /// <summary>
-        /// create this unit off properties
-        /// </summary>
-        /// <param name="_propertytype"></param>
-        /// <param name="_propertyname"></param>
-        private void _defineunitproperty(Type _propertytype, string _propertyname)
+        private void _defineunitproperty(Type _type, string _name)
         {
-            if (this._type != null)
+            if (this._typebuilder != null)
             {
 				// TODO: consider renaming conventions here
                 // basic field
-                FieldBuilder _field = this._type.DefineField("_field" + _propertyname, _propertytype, FieldAttributes.Private);
+                FieldBuilder _field = this._typebuilder.DefineField("_field" + _name, _type, FieldAttributes.Private);
 
                 // get method for basic field
-                MethodBuilder _get_method = this._type.DefineMethod("_get" + _propertyname,
+                MethodBuilder _get_method = this._typebuilder.DefineMethod("_get" + _name,
 					MethodAttributes.Public |
 					MethodAttributes.SpecialName |
 					MethodAttributes.HideBySig,
-					_propertytype,
+					_type,
 					Type.EmptyTypes
 				);
                 ILGenerator _get_immediatelanguage = _get_method.GetILGenerator();
@@ -167,12 +151,12 @@ namespace _unit
                 _get_immediatelanguage.Emit(OpCodes.Ret);
 
                 // set method for basic field
-                MethodBuilder _set_method = this._type.DefineMethod("_set" + _propertyname,
+                MethodBuilder _set_method = this._typebuilder.DefineMethod("_set" + _name,
 					MethodAttributes.Public |
 					MethodAttributes.SpecialName |
 					MethodAttributes.HideBySig,
 					null,
-					new[] { _propertytype }
+					new[] { _type }
 				);
                 ILGenerator _set_immediatelanguage = _set_method.GetILGenerator();
                 Label _modifyproperty = _set_immediatelanguage.DefineLabel();
@@ -186,7 +170,7 @@ namespace _unit
                 _set_immediatelanguage.Emit(OpCodes.Ret);
 
                 // attaching newly created basic field to new property
-                PropertyBuilder _property = this._type.DefineProperty(_propertyname, PropertyAttributes.HasDefault, _propertytype, null);
+                PropertyBuilder _property = this._typebuilder.DefineProperty(_name, PropertyAttributes.HasDefault, _type, null);
                 _property.SetGetMethod(_get_method);
                 _property.SetSetMethod(_set_method);
             }
@@ -196,22 +180,17 @@ namespace _unit
 
         #region public
 
-		public _unitconfiguration? _getconfiguration()
-		{
-			return this._configuration;
-		}
-
         /// <summary>
-        /// create this unit off a new instance runtime
+        /// _unit off separate instance
         /// </summary>
         /// <returns>instance or null on failure</returns>
-        internal Object? _createinstance()
+        internal object? _separateinstance()
 		{
-			Object? _instance = null;
+			object? _instance = null;
 			try
 			{
 				// create an instance of the TypeBuilder
-				Type _type = this._type?.CreateType() ?? typeof(Nullable);
+				Type _type = this._typebuilder?.CreateType() ?? typeof(Nullable);
 				if (_type != typeof(Nullable))
 				{
 					_instance = Activator.CreateInstance(_type);
@@ -227,73 +206,83 @@ namespace _unit
 		#endregion
 	}
 
+	/// <summary>
+	/// _unit off configuration
+	/// </summary>
     public class _unitconfiguration
 	{
 		#region attribute
 
-		public string _unitname { get; set; }
-		public List<_propertyconfiguration> _properties = new List<_propertyconfiguration>() { };
+		public readonly string _name;
+		public readonly List<_propertyconfiguration> _properties = new List<_propertyconfiguration>() { };
 
         #endregion
 
         #region constructor
 
         /// <summary>
-        /// unit configuration
+        /// create _unit off _unitconfiguration
         /// </summary>
-        /// <param name="_unitname">unit name</param>
-        /// <param name="_properties">unit properties</param>
-        public _unitconfiguration(string _unitname, List<_propertyconfiguration> _properties)
+        /// <param name="_name">_name , e.g., _classloremipsum</param>
+        /// <param name="_properties">_properties</param>
+        public _unitconfiguration(string _name, List<_propertyconfiguration> _properties)
 		{
-			this._unitname = _unitname;
+			this._name = _name;
 			this._properties = _properties;
 		}
 
 		#endregion
 	}
 
+	/// <summary>
+	/// _property off configuration
+	/// </summary>
 	public class _propertyconfiguration
 	{
 		#region attribute
 
-		public Type _type { get; set; }
-		public string _name { get; set; }
-		public enum _systemdefaulttype : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
-
-		#endregion
-
-		#region constructor
-
 		/// <summary>
-		/// property configuration file
+		/// _systemdefault values
 		/// </summary>
-		/// <param name="_type">type of the property</param>
-		/// <param name="_name">property name</param>
-		public _propertyconfiguration(Type _type, string _name)
+		public enum _systemdefaultvalue : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
+
+		public readonly Type _type;
+		public readonly string _name;
+		
+        #endregion
+
+        #region constructor
+
+        /// <summary>
+        /// create _unit off _propertyconfiguration
+        /// </summary>
+        /// <param name="_type">_type</param>
+        /// <param name="_name">_name</param>
+        public _propertyconfiguration(Type _type, string _name)
 		{
 			this._type = _type;
 			this._name = _name;
 		}
 
         /// <summary>
-        /// property configuration file
+        /// create _unit off _propertyconfiguration
         /// </summary>
-        /// <param name="_systemdefalttype">type of the property , system default type in plain string</param>
-        /// <param name="_name">property name</param>
-        public _propertyconfiguration(string _systemdefalttype, string _name)
+        /// <param name="_type">_type , string format</param>
+        /// <param name="_name">_name</param>
+        public _propertyconfiguration(string _type, string _name)
         {
-            this._type = this._getsystemtypebystring(_systemdefalttype);
+            this._type = _getsystemtypebystring(_type);
             this._name = _name;
         }
 
         /// <summary>
-        /// property configuration file
+        /// create _unit off _propertyconfiguration
         /// </summary>
-        /// <param name="_systemdefaulttype">type of the property , system default type in enum</param>
-        /// <param name="_name">property name</param>
-        public _propertyconfiguration(_systemdefaulttype _systemdefaulttype, string _name)
+        /// <param name="_type">_type , enum format</param>
+        /// <param name="_name">_name</param>
+        public _propertyconfiguration(_systemdefaultvalue _type, string _name)
 		{
-			this._type = this._getsystemtypebyenum(_systemdefaulttype);
+			this._type = _getsystemtypebyenum(_type);
 			this._name = _name;
 		}
 
@@ -301,22 +290,44 @@ namespace _unit
 
 		#region private
 
-		private Type _getsystemtypebyenum(_systemdefaulttype _systemdefaulttype)
+		private static Type _getsystemtypebyenum(_systemdefaultvalue _systemdefaulttype)
 		{
-            return this._getsystemtype(_systemdefaulttype.ToString() ?? string.Empty);
+			try
+			{
+				string _typeinstring = _systemdefaulttype.ToString();
+				if (!string.IsNullOrEmpty(_typeinstring))
+				{
+					return _getsystemtype(_typeinstring);
+				}
+				else
+				{
+					throw new Exception("Provided type is null or invalid.");
+				}
+			}
+			catch (Exception _exception)
+			{
+				throw new Exception(_exception.Message);
+			}
         }
 
-		private Type _getsystemtypebystring(string _systemdefaulttype)
+		private static Type _getsystemtypebystring(string _systemdefaulttype)
 		{
-			return this._getsystemtype(_systemdefaulttype);
+			return _getsystemtype(_systemdefaulttype);
 		}
 
-        private Type _getsystemtype(string _typeinstring)
+        private static Type _getsystemtype(string _typeinstring)
         {
             Type _type = typeof(System.Nullable);
 
-            string _typeunformatted = "System." + _typeinstring;
-            _type = Type.GetType(_typeunformatted) ?? _type;
+			try
+			{
+				string _typeunformatted = "System." + _typeinstring;
+				_type = Type.GetType(_typeunformatted) ?? _type;
+			}
+			catch (Exception _exception)
+			{
+				throw new Exception(_exception.Message);
+			}
 
             return _type;
         }
@@ -326,38 +337,65 @@ namespace _unit
         #region public
 
 		/// <summary>
-		/// check if provided type is a system default type
+		/// check if provided type is systemdefault
 		/// </summary>
-		/// <param name="_type">type</param>
-		/// <returns>result as true\false</returns>
-        public static bool _ispropertysystemdefaulttype(Type _type)
+		/// <param name="_type">_type</param>
+		/// <returns>true\false</returns>
+        public static bool _ispropertysystemdefault(Type _type)
 		{
-			bool _issystemdefaulttype = false;
+			bool _issystemdefault;
 
 			if (_type != null)
 			{
-				string _typeinstring = _type.ToString().Substring(7);
-				_issystemdefaulttype = Enum.IsDefined(typeof(_propertyconfiguration._systemdefaulttype), _typeinstring);
+				try
+				{
+					string _typeinstring = _type.ToString().Substring(7);
+					_issystemdefault = Enum.IsDefined(typeof(_propertyconfiguration._systemdefaultvalue), _typeinstring);
+				}
+				catch (Exception _exception)
+				{
+					throw new Exception(_exception.Message);
+				}
+			}
+			else
+			{
+				throw new Exception("Provided _type is null.");
 			}
 
-			return _issystemdefaulttype;
+			return _issystemdefault;
 		}
 
         #endregion
     }
 
+	/// <summary>
+	/// _unit off _instance
+	/// </summary>
     public class _instance
     {
-        private readonly Object _unit;
-        private readonly Object _entity;
+        #region attribute
 
+        private readonly object _unit;
+        private readonly Type _entity;
+
+        #endregion
+
+        #region constructor
+
+		/// <summary>
+		/// create _unit off _instance
+		/// </summary>
+		/// <param name="_unit">_unit parent</param>
+		/// <exception cref="Exception"></exception>
         public _instance(_unit _unit)
         {
 			if (_unit != null)
 			{
 				// block , start
+
 				this._unit = _unit;
-				this._entity = _unit._createinstance() ?? throw new Exception("Instance not created.");
+				this._entity = _unit._separateinstance()?.GetType() ?? throw new Exception("Instance not created.");
+				
 				// block , end
 			}
 			else
@@ -366,46 +404,153 @@ namespace _unit
 			}
         }
 
-        private void _setpropertyvalue(Object _entity, PropertyInfo _property, Object? _value)
-        {
-            if (_entity != null && _property != null)
-            {
-                try
-                {
-                    _property.SetValue(_entity, _value, null);
-                }
-                catch (Exception _exception)
-                {
-                    throw new Exception("EXCEPTION: " + _exception.Message);
-                }
-            }
-        }
+        #endregion
 
-		public void _setvalueset(Dictionary<string, Object?> _valueset)
-		{
-            // assigning sample values to the properties of the newly created instance
-            if (this._entity != null)
+        #region private
+
+        private void _setpropertyvalue(Type _entity, PropertyInfo _property, object? _value)
+        {
+            if (_entity != null)
             {
-                Type _typeofentity = this._entity.GetType();
-				foreach (KeyValuePair<string, Object?> _value in _valueset)
+				if (_property != null)
 				{
-					PropertyInfo? _property = _typeofentity.GetProperty(_value.Key);
-					if (_property != null)
-                    {
-                        this._setpropertyvalue(this._entity, _property, _value.Value);
-                    }
+					try
+					{
+						_property.SetValue(_entity, _value, null);
+					}
+					catch (Exception _exception)
+					{
+						throw new Exception(_exception.Message);
+					}
+				}
+				else
+				{
+					throw new Exception("Provided _property is null.");
 				}
             }
+			else
+			{
+				throw new Exception("Provided _entity is null.");
+			}
         }
 
-        public Object _retrieveunit()
+        private object? _getpropertyvalue(Type _entity, PropertyInfo _property)
+        {
+            object? _value = null;
+            if (_entity != null)
+            {
+                if (_property != null)
+                {
+                    try
+                    {
+						_value = _property.GetValue(_entity, null);
+					}
+					catch (Exception _exception)
+					{
+						throw new Exception(_exception.Message);
+					}
+				}
+				else
+				{
+					throw new Exception("Provided _property is null.");
+				}
+			}
+            else
+            {
+                throw new Exception("Provided _entity is null.");
+            }
+            return _value;
+        }
+
+        #endregion
+
+        #region public
+
+        /// <summary>
+        /// assign valuset
+        /// </summary>
+        /// <param name="_valueset">valuset in form off Dictionary<string, object?></param>
+        /// <exception cref="Exception"></exception>
+        public void _setvalueset(Dictionary<string, object?> _valueset)
+		{
+            if (this._entity != null)
+            {
+				if (_valueset != null)
+				{
+					foreach (KeyValuePair<string, object?> _value in _valueset)
+					{
+						try
+						{
+							PropertyInfo? _property = this._entity.GetProperty(_value.Key);
+							if (_property != null)
+							{
+								this._setpropertyvalue(this._entity, _property, _value.Value);
+							}
+						}
+						catch (Exception _exception)
+						{
+							throw new Exception(_exception.Message);
+						}
+					}
+				}
+				else
+				{
+					throw new Exception("Provided _valuset is null.");
+				}
+            }
+			else
+			{
+				throw new Exception("Provided _entity is null.");
+			}
+        }
+
+        /// <summary>
+        /// retrieve valuset
+        /// </summary>
+        /// <returns>valuset in form off Dictionary<string, object?></returns>
+        /// <exception cref="Exception"></exception>
+        public Dictionary<string, object?> _getvalueset()
+        {
+			Dictionary<string, object?> _valueset = new Dictionary<string, object?>() { };
+            if (this._entity != null)
+            {
+                foreach (PropertyInfo _property in this._entity.GetProperties())
+                {
+					try
+					{
+						_valueset.Add(_property.Name, this._getpropertyvalue(this._entity, _property));
+					}
+					catch (Exception _exception)
+					{
+						throw new Exception(_exception.Message);
+					}
+                }
+            }
+			else
+			{
+				throw new Exception("Provided _entity is null.");
+			}
+			return _valueset;
+        }
+
+		/// <summary>
+		/// retrieve _unit parent
+		/// </summary>
+		/// <returns>_unit</returns>
+        public object _retrieveunit()
         {
             return this._unit;
         }
 
-        public Object _retrieveinstance()
+        /// <summary>
+        /// retrieve _instance type
+        /// </summary>
+        /// <returns>_entity</returns>
+        public object _retrieveentity()
         {
             return this._entity;
         }
-    }
+
+		#endregion
+	}
 }
