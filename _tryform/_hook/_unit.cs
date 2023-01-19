@@ -478,7 +478,7 @@ namespace _unit
 				{
 					try
 					{
-						_property.SetValue(_entity.GetType(), _value, null);
+						_property.SetValue(_entity, _value, null);
 					}
 					catch (Exception _exception)
 					{
