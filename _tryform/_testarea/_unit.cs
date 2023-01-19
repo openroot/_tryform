@@ -179,6 +179,8 @@ namespace _unit
         {
             try
             {
+                Type _typeoffnull = typeof(Nullable);
+
                 // block , start
 
                 // unit loremipsum , configuration
@@ -202,12 +204,17 @@ namespace _unit
                 // instance foobar , assiging value
                 if (_foobar != null)
                 {
-                    _foobar._setvalueset(new Dictionary<string, object?>() {
-                        {"_id", 796},
-                        {"_fullname", "Debaprasad Tapader"},
-                        {"_address", "Deoghar, JH, IN"},
-                        {"_isdead", true},
-                        {"_foo", null}
+                    _foobar._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
+                        //{"_id", 796},
+                        //{"_fullname", "Debaprasad Tapader"},
+                        //{"_address", "Deoghar, JH, IN"},
+                        //{"_isdead", true},
+                        //{"_foo", null}
+                        {"_id", new KeyValuePair<object?, object?>(796, null) { } },
+                        {"_fullname", new KeyValuePair<object?, object?>("Debaprasad Tapader", null) { } },
+                        {"_address", new KeyValuePair<object?, object?>("Deoghar, JH, IN", null) { } },
+                        {"_isdead", new KeyValuePair<object?, object?>(true, null) { } },
+                        {"_foo", new KeyValuePair<object?, object?>(null, null) { } }
                     });
 
                     // unitcontainer , assigning foobar instance
@@ -234,11 +241,15 @@ namespace _unit
                     _instance _foobar101 = new _instance(_loremipsumseparate);
                     if (_foobar101 != null)
                     {
-                        _foobar101._setvalueset(new Dictionary<string, object?>() {
-                            {"_loremipsum", _foobar},
-                            {"_sector", "Matter Design"},
-                            {"_year", 2003},
-                            {"_isactive", true}
+                        _foobar101._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
+                            //{"_loremipsum", _foobar},
+                            //{"_sector", "Matter Design"},
+                            //{"_year", 2003},
+                            //{"_isactive", true}
+                            {"_loremipsum", new KeyValuePair<object?, object?>(_foobar, _loremipsum._retrieveunit()) { } },
+                            {"_sector", new KeyValuePair<object?, object?>("Matter Design", null) { } },
+                            {"_year", new KeyValuePair<object?, object?>(2003, null) { } },
+                            {"_isactive", new KeyValuePair<object?, object?>(true, null) { } }
                         });
                         this._unitcontainerassign(_foobar101);
                     }
@@ -246,11 +257,15 @@ namespace _unit
                     _instance _foobar201 = new _instance(_loremipsumseparate);
                     if (_foobar201 != null)
                     {
-                        _foobar201._setvalueset(new Dictionary<string, object?>() {
-                            {"_loremipsum", null},
-                            {"_sector", "Classic Culture"},
-                            {"_year", 2004},
-                            {"_isactive", true}
+                        _foobar201._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
+                            //{"_loremipsum", null},
+                            //{"_sector", "Classic Culture"},
+                            //{"_year", 2004},
+                            //{"_isactive", true}
+                            {"_loremipsum", new KeyValuePair<object?, object?>(null, _loremipsum._retrieveunit()) { } },
+                            {"_sector", new KeyValuePair<object?, object?>("Classic Culture", null) { } },
+                            {"_year", new KeyValuePair<object?, object?>(2004, null) { } },
+                            {"_isactive", new KeyValuePair<object?, object?>(true, null) { } }
                         });
                         this._unitcontainerassign(_foobar201);
                     }

@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.InteropServices;
 using Label = System.Reflection.Emit.Label;
 
 namespace _unit
@@ -438,7 +437,8 @@ namespace _unit
     {
         #region attribute
 
-        private readonly Type _entity;
+        private readonly object _entity;
+        private readonly Type _type;
 
         #endregion
 
@@ -455,7 +455,8 @@ namespace _unit
 			{
 				// block , start
 
-				this._entity = _unit._separateinstance()?.GetType() ?? throw new Exception("Instance not created.");
+				this._entity = _unit._separateinstance() ?? throw new Exception("Instance not created.");
+                this._type = this._entity.GetType() ?? throw new Exception("Type not created.");
 				
 				// block , end
 			}
@@ -469,7 +470,7 @@ namespace _unit
 
         #region private
 
-        private void _setpropertyvalue(Type _entity, PropertyInfo _property, object? _value)
+        private void _setpropertyvalue(object _entity, PropertyInfo _property, object? _value)
         {
             if (_entity != null)
             {
@@ -477,7 +478,7 @@ namespace _unit
 				{
 					try
 					{
-						_property.SetValue(_entity, _value, null);
+						_property.SetValue(_entity.GetType(), _value, null);
 					}
 					catch (Exception _exception)
 					{
@@ -532,20 +533,30 @@ namespace _unit
         /// </summary>
         /// <param name="_valueset">valuset in form off Dictionary<string, object?></param>
         /// <exception cref="Exception"></exception>
-        public void _setvalueset(Dictionary<string, object?> _valueset, [Optional]Type _foreignentity)
+        public void _setvalueset(Dictionary<string, KeyValuePair<object?, object?>> _valueset)
 		{
             if (this._entity != null)
             {
 				if (_valueset != null)
 				{
-					foreach (KeyValuePair<string, object?> _value in _valueset)
+					foreach (KeyValuePair<string, KeyValuePair<object?, object?>> _value in _valueset)
 					{
 						try
 						{
-                            PropertyInfo? _property = this._entity.GetProperty(_value.Key);
+							object _entity = this._entity;
+
+							object? _foreignentity = _value.Value.Value; // assign with null off type , if assigned Type is empty
+							if (_foreignentity != null) // if _foreignentity not a null off type ; i.e., can not hold instance
+                            {
+								_entity = _foreignentity;
+                            }
+
+                            PropertyInfo? _property = _entity.GetType().GetProperty(_value.Key);
+							object? _propertyvalue = _value.Value.Key;
+
                             if (_property != null)
 							{
-								this._setpropertyvalue(this._entity, _property, _value.Value);
+								this._setpropertyvalue(_entity, _property, _propertyvalue);
 							}
 						}
 						catch (Exception _exception)
@@ -575,11 +586,11 @@ namespace _unit
 			Dictionary<string, object?> _valueset = new Dictionary<string, object?>() { };
             if (this._entity != null)
             {
-                foreach (PropertyInfo _property in this._entity.GetProperties())
+                foreach (PropertyInfo _property in this._entity.GetType().GetProperties())
                 {
 					try
 					{
-						_valueset.Add(_property.Name, this._getpropertyvalue(this._entity, _property));
+						_valueset.Add(_property.Name, this._getpropertyvalue(this._entity.GetType(), _property));
 					}
 					catch (Exception _exception)
 					{
@@ -595,12 +606,21 @@ namespace _unit
         }
 
         /// <summary>
-        /// retrieve _instance
+        /// retrieve _instance object
         /// </summary>
-        /// <returns>_instance</returns>
-        public Type _retrieveinstance()
+        /// <returns>_instance object</returns>
+        public object _retrieveinstanceobject()
         {
             return this._entity;
+        }
+		
+		/// <summary>
+        /// retrieve _instance type
+        /// </summary>
+        /// <returns>_instance type</returns>
+        public object _retrieveinstancetype()
+        {
+            return this._type;
         }
 
 		#endregion
