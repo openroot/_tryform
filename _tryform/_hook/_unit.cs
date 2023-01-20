@@ -262,7 +262,7 @@ namespace _unit
 			try
 			{
 				object? _entitytemp = Activator.CreateInstance(this._retrievetype());
-				if (_classcontainer._assignclass(_entitytemp))
+				if (_classcontainer._assignentity(_entitytemp))
 				{
 					_entity = _entitytemp;
 				}
@@ -284,10 +284,22 @@ namespace _unit
 			#region attribute
 
 			private static Dictionary<Guid, _entityset> _classset = new Dictionary<Guid, _entityset>() { };
-			
+
 			#endregion
 
 			#region public
+
+			public static bool _assigntype(Type? _type)
+			{
+				bool _issuccess = false;
+
+				if (_type != null)
+				{
+					Guid _guid = _type.GUID;
+				}
+
+				return _issuccess;
+			}
 
 			/// <summary>
 			/// assign _entity
@@ -295,7 +307,7 @@ namespace _unit
 			/// <param name="_entity"></param>
 			/// <returns>bool</returns>
 			/// <exception cref="Exception"></exception>
-			public static bool _assignclass(object? _entity)
+			public static bool _assignentity(object? _entity)
 			{
 				bool _issuccess = false;
 
@@ -303,17 +315,17 @@ namespace _unit
 				{
 					try
 					{
-						_entityset _entityset = new _entityset();
-						_entityset._assignentity(_entity);
-
-						Guid _guid = _entity.GetType().GUID;
-						// assign new _guid off _entity , if not already assign
+						Type _type = _entity.GetType();
+                        Guid _guid = _type.GUID;
+						// assign new _guid off _entity , if not already assign double-check
 						if (!_classset.ContainsKey(_guid))
 						{
+							_entityset _entityset = new _entityset(_type);
+							_entityset._assignentity(_entity);
 							_classset.Add(_guid, _entityset);
 						}
 						// assign _enity _guid
-						if (_classset.ContainsKey(_guid))
+						else
 						{
 							_classset[_guid]._assignentity(_entity);
 						}
@@ -338,7 +350,6 @@ namespace _unit
             /// <returns>classset</returns>
             public static Dictionary<Guid, _entityset> _retrieveclassset()
 			{
-				// TODO: debug first _entity assign double place
 				return _classset;
             }
 
@@ -352,6 +363,7 @@ namespace _unit
                 #region attribute
 
                 private Guid? _guid { get; set; }
+                private Type? _type { get; set; }
                 private string? _name { get; set; }
 				private List<object>? _entities;
 
@@ -362,12 +374,22 @@ namespace _unit
 				/// <summary>
 				/// _entityset
 				/// </summary>
-				public _entityset()
+				public _entityset(Type? _type)
 				{
-					this._guid = null;
-					this._name = null;
-					this._entities = new List<object>() { };
-				}
+					if (_type != null)
+					{
+						this._guid = _type.GUID;
+						this._type = _type;
+						this._name = _type.Name;
+					}
+					else
+                    {
+                        this._guid = null;
+                        this._type = null;
+                        this._name = null;
+                    }
+                    this._entities = new List<object>() { };
+                }
 
 				#endregion
 
@@ -404,7 +426,7 @@ namespace _unit
 					{
 						try
 						{
-							this._guid = this._guid ?? new Guid();
+							this._guid = this._guid ?? _entity.GetType().GUID;
 							this._name = this._name ?? _entity.GetType().Name;
 							this._entities.Add(_entity);
 							_issuccess = true;

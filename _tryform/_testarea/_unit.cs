@@ -197,27 +197,27 @@ namespace _unit
                 // _class _loremipsum , creating _class
                 _unit _loremipsum = new _unit(_loremipsumclassconfig);
 
-                // _class _loremipsum , creating _entity _foobar
-                _instance _foobar = new _instance(_loremipsum);
+                //// _class _loremipsum , creating _entity _foobar
+                //_instance _foobar = new _instance(_loremipsum);
 
-                // _entity _foobar , assiging properties
-                if (_foobar != null)
-                {
-                    _foobar._assignproperties(new Dictionary<string, object?>() {
-                        {"_id", 796},
-                        {"_fullname", "Debaprasad Tapader"},
-                        {"_address", "Deoghar, JH, IN"},
-                        {"_isdead", true},
-                        {"_foo", null}
-                    });
+                //// _entity _foobar , assiging properties
+                //if (_foobar != null)
+                //{
+                //    _foobar._assignproperties(new Dictionary<string, object?>() {
+                //        {"_id", 796},
+                //        {"_fullname", "Debaprasad Tapader"},
+                //        {"_address", "Deoghar, JH, IN"},
+                //        {"_isdead", true},
+                //        {"_foo", null}
+                //    });
 
-                    // _entitycontainer , assigning _entity _foobar
-                    this._assignenitycontainer(_foobar._retrieveentity());
-                }
+                //    // _entitycontainer , assigning _entity _foobar
+                //    this._assignenitycontainer(_foobar._retrieveentity());
+                //}
 
                 // block , end
 
-                if (_foobar != null)
+                //if (_foobar != null)
                 {
                     // block , start
 
@@ -237,7 +237,8 @@ namespace _unit
                     if (_foobar101 != null)
                     {
                         _foobar101._assignproperties(new Dictionary<string, object?>() {
-                            {"_loremipsum", _foobar._retrieveentity()},
+                            //{"_loremipsum", _foobar._retrieveentity()},
+                            {"_loremipsum", null},
                             {"_sector", "Matter Design"},
                             {"_year", 2003},
                             {"_isactive", true}
