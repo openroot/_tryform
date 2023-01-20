@@ -11,7 +11,7 @@ namespace _unit
 	{
 		#region attribute
 
-		public readonly _classconfiguration _classconfiguration;
+		private readonly _classconfiguration _classconfiguration;
 		private TypeBuilder? _classbuilder { get; set; }
 		private Type _class { get; set; }
 
@@ -26,7 +26,7 @@ namespace _unit
         public _unit(_classconfiguration _classconfiguration)
 		{
 			this._classconfiguration = _classconfiguration;
-			this._class = typeof(Nullable);
+			this._class = typeof(System.Nullable);
 
             if (this._rectifyclassconfiguration())
 			{
@@ -222,7 +222,7 @@ namespace _unit
 		{
 			try
 			{
-				this._class = this._classbuilder?.CreateType() ?? typeof(Nullable);
+				this._class = this._classbuilder?.CreateType() ?? typeof(System.Nullable);
 			}
 			catch (Exception _exception)
 			{
@@ -242,6 +242,15 @@ namespace _unit
 		{
 			return this._class;
 		}
+
+        /// <summary>
+        /// retrieve _classconfiguration
+        /// </summary>
+        /// <returns>_classconfiguration</returns>
+        public _classconfiguration _retrieveclassconfiguration()
+        {
+            return this._classconfiguration;
+        }
 
         /// <summary>
         /// _unit _class off separate _entity
@@ -319,12 +328,12 @@ namespace _unit
     /// </summary>
     public class _propertyconfiguration
 	{
-		#region attribute
+        #region attribute
 
-		/// <summary>
-		/// _systemdefault values
-		/// </summary>
-		public enum _systemdefaultvalue : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
+        /// <summary>
+        /// _enumtypedefault
+        /// </summary>
+        public enum _enumtypedefault : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
 
 		private readonly Type _type;
 		private readonly string _name;
@@ -334,9 +343,9 @@ namespace _unit
         #region constructor
 
         /// <summary>
-        /// create _unit off _propertyconfiguration
+        /// create _class off _propertyconfiguration
         /// </summary>
-        /// <param name="_type">_type</param>
+        /// <param name="_type">_type , Type</param>
         /// <param name="_name">_name</param>
         public _propertyconfiguration(Type _type, string _name)
 		{
@@ -345,24 +354,24 @@ namespace _unit
 		}
 
         /// <summary>
-        /// create _unit off _propertyconfiguration
+        /// create _class off _propertyconfiguration
         /// </summary>
-        /// <param name="_type">_type , string format</param>
+        /// <param name="_type">_type , string</param>
         /// <param name="_name">_name</param>
         public _propertyconfiguration(string _type, string _name)
         {
-            this._type = _getsystemtypebystring(_type);
+            this._type = _fetchtypedefault(_type);
             this._name = _name;
         }
 
         /// <summary>
-        /// create _unit off _propertyconfiguration
+        /// create _class off _propertyconfiguration
         /// </summary>
-        /// <param name="_type">_type , enum format</param>
+        /// <param name="_type">_type , _enumtypedefault</param>
         /// <param name="_name">_name</param>
-        public _propertyconfiguration(_systemdefaultvalue _type, string _name)
+        public _propertyconfiguration(_enumtypedefault _type, string _name)
 		{
-			this._type = _getsystemtypebyenum(_type);
+			this._type = _fetchtypedefaultbyenum(_type);
 			this._name = _name;
 		}
 
@@ -370,14 +379,14 @@ namespace _unit
 
 		#region private
 
-		private static Type _getsystemtypebyenum(_systemdefaultvalue _systemdefaulttype)
+		private static Type _fetchtypedefaultbyenum(_enumtypedefault _typedefaultinenum)
 		{
 			try
 			{
-				string _typeinstring = _systemdefaulttype.ToString();
-				if (!string.IsNullOrEmpty(_typeinstring))
+				string _typedefaultinstring = _typedefaultinenum.ToString();
+				if (!string.IsNullOrEmpty(_typedefaultinstring))
 				{
-					return _getsystemtype(_typeinstring);
+					return _fetchtypedefault(_typedefaultinstring);
 				}
 				else
 				{
@@ -390,26 +399,21 @@ namespace _unit
 			}
         }
 
-		private static Type _getsystemtypebystring(string _systemdefaulttype)
-		{
-			return _getsystemtype(_systemdefaulttype);
-		}
-
-        private static Type _getsystemtype(string _typeinstring)
+        private static Type _fetchtypedefault(string _typedefaultinstring)
         {
-            Type _type = typeof(System.Nullable);
+            Type _fetchedtypedefault = typeof(System.Nullable);
 
 			try
 			{
-				string _typeunformatted = "System." + _typeinstring;
-				_type = Type.GetType(_typeunformatted) ?? _type;
+				string _typedefaultinstringrectified = "System." + _typedefaultinstring;
+				_fetchedtypedefault = Type.GetType(_typedefaultinstringrectified) ?? _fetchedtypedefault;
 			}
 			catch (Exception _exception)
 			{
-				throw new Exception(_exception.Message);
+				throw new Exception("Type off default , unsuccessful to fetch.", _exception);
 			}
 
-            return _type;
+            return _fetchedtypedefault;
         }
 
         #endregion
@@ -448,7 +452,7 @@ namespace _unit
 				try
 				{
 					string _typeinstring = _type.ToString().Substring(7);
-					_issystemdefault = Enum.IsDefined(typeof(_propertyconfiguration._systemdefaultvalue), _typeinstring);
+					_issystemdefault = Enum.IsDefined(typeof(_propertyconfiguration._enumtypedefault), _typeinstring);
 				}
 				catch (Exception _exception)
 				{
@@ -564,6 +568,24 @@ namespace _unit
 
         #region public
 
+		/// <summary>
+        /// retrieve _type
+        /// </summary>
+        /// <returns>_type</returns>
+        public Type _retrievetype()
+        {
+            return this._type;
+        }
+
+        /// <summary>
+        /// retrieve _entity
+        /// </summary>
+        /// <returns>_entity</returns>
+        public object _retrieveentity()
+        {
+            return this._entity;
+        }
+		
         /// <summary>
         /// assign properties
         /// </summary>
@@ -629,24 +651,6 @@ namespace _unit
 				throw new Exception("Provided _entity is null.");
 			}
 			return _valueset;
-        }
-
-        /// <summary>
-        /// retrieve _entity
-        /// </summary>
-        /// <returns>_entity</returns>
-        public object _retrieveentity()
-        {
-            return this._entity;
-        }
-		
-		/// <summary>
-        /// retrieve _type
-        /// </summary>
-        /// <returns>_type</returns>
-        public Type _retrievetype()
-        {
-            return this._type;
         }
 
 		#endregion
