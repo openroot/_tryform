@@ -569,22 +569,20 @@ namespace _unit
         /// </summary>
         /// <param name="_valueset">property values in form off Dictionary<string, object?></param>
         /// <exception cref="Exception"></exception>
-        public void _assignproperties(Dictionary<string, KeyValuePair<object?, object?>> _valueset)
+        public void _assignproperties(Dictionary<string, object?> _valueset)
 		{
             if (this._entity != null)
             {
 				if (_valueset != null)
 				{
-					foreach (KeyValuePair<string, KeyValuePair<object?, object?>> _value in _valueset)
+					foreach (KeyValuePair<string, object?> _value in _valueset)
 					{
 						try
 						{
-                            object _entity = _value.Value.Value ?? this._entity;
-
-                            PropertyInfo? _property = _entity.GetType().GetProperty(_value.Key);
+                            PropertyInfo? _property = this._entity.GetType().GetProperty(_value.Key);
                             if (_property != null)
 							{
-								this._assignproperty(_entity, _property, _value.Value.Key);
+								this._assignproperty(this._entity, _property, _value.Value);
 							}
 						}
 						catch (Exception _exception)

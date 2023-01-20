@@ -202,12 +202,12 @@ namespace _unit
                 // _entity _foobar , assiging properties
                 if (_foobar != null)
                 {
-                    _foobar._assignproperties(new Dictionary<string, KeyValuePair<object?, object?>>() {
-                        {"_id", new KeyValuePair<object?, object?>(796, null) { } },
-                        {"_fullname", new KeyValuePair<object?, object?>("Debaprasad Tapader", null) { } },
-                        {"_address", new KeyValuePair<object?, object?>("Deoghar, JH, IN", null) { } },
-                        {"_isdead", new KeyValuePair<object?, object?>(true, null) { } },
-                        {"_foo", new KeyValuePair<object?, object?>(null, null) { } }
+                    _foobar._assignproperties(new Dictionary<string, object?>() {
+                        {"_id", 796},
+                        {"_fullname", "Debaprasad Tapader"},
+                        {"_address", "Deoghar, JH, IN"},
+                        {"_isdead", true},
+                        {"_foo", null}
                     });
 
                     // _entitycontainer , assigning _entity _foobar
@@ -223,7 +223,8 @@ namespace _unit
                     _classconfiguration _loremipsumseparateclassconfig = new _classconfiguration(
                         "_loremipsumseparate",
                         new List<_propertyconfiguration>() {
-                            new _propertyconfiguration(_foobar._retrievetype(), "_loremipsum"),
+                            //new _propertyconfiguration(_foobar._retrievetype(), "_loremipsum"),
+                            new _propertyconfiguration(_loremipsum._retrievetype(), "_loremipsum"),
                             new _propertyconfiguration("String", "_sector"),
                             new _propertyconfiguration("Int32", "_year"),
                             new _propertyconfiguration("Boolean", "_isactive")
@@ -234,11 +235,11 @@ namespace _unit
                     _instance _foobar101 = new _instance(_loremipsumseparate);
                     if (_foobar101 != null)
                     {
-                        _foobar101._assignproperties(new Dictionary<string, KeyValuePair<object?, object?>>() {
-                            {"_loremipsum", new KeyValuePair<object?, object?>(_foobar._retrieveentity(), null) { } },
-                            {"_sector", new KeyValuePair<object?, object?>("Matter Design", null) { } },
-                            {"_year", new KeyValuePair<object?, object?>(2003, null) { } },
-                            {"_isactive", new KeyValuePair<object?, object?>(true, null) { } }
+                        _foobar101._assignproperties(new Dictionary<string, object?>() {
+                            {"_loremipsum", _foobar._retrieveentity()},
+                            {"_sector", "Matter Design"},
+                            {"_year", 2003},
+                            {"_isactive", true}
                         });
                         this._assignenitycontainer(_foobar101._retrieveentity());
                     }
@@ -246,11 +247,11 @@ namespace _unit
                     _instance _foobar201 = new _instance(_loremipsumseparate);
                     if (_foobar201 != null)
                     {
-                        _foobar201._assignproperties(new Dictionary<string, KeyValuePair<object?, object?>>() {
-                            {"_loremipsum", new KeyValuePair<object?, object?>(null, null) { } },
-                            {"_sector", new KeyValuePair<object?, object?>("Classic Culture", null) { } },
-                            {"_year", new KeyValuePair<object?, object?>(2004, null) { } },
-                            {"_isactive", new KeyValuePair<object?, object?>(true, null) { } }
+                        _foobar201._assignproperties(new Dictionary<string, object?>() {
+                            {"_loremipsum", null},
+                            {"_sector", "Classic Culture"},
+                            {"_year", 2004},
+                            {"_isactive", true}
                         });
                         this._assignenitycontainer(_foobar201._retrieveentity());
                     }
