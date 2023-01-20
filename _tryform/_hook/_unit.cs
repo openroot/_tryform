@@ -1,6 +1,9 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
 using Label = System.Reflection.Emit.Label;
+using System.Text.Json;
+
+using static _unit._unit._classcontainer;
 
 namespace _unit
 {
@@ -82,7 +85,7 @@ namespace _unit
 						{
 							if (
 								String.IsNullOrEmpty(_property._retrievename()) ||
-								String.IsNullOrEmpty(_property._retrievetype().ToString())
+								String.IsNullOrEmpty(_property._retrievetype()?.ToString() ?? string.Empty)
 							)
 							{
 								_ispropertiescompliant = false;
@@ -200,53 +203,69 @@ namespace _unit
 			bool _issuccess = false;
 			if (this._classbuilder != null)
 			{
-				try
+                try
 				{
 					_classconfiguration._propertyconfiguration _property = this._classconfiguration._retrieveproperties()[_index];
 
-					// _property _field , structure
-					FieldBuilder _fieldbuilder = this._classbuilder.DefineField("_field" + _property._retrievename(), _property._retrievetype(), FieldAttributes.Private);
+                    Type? _type = _property._retrievetype();
+					string? _name = _property._retrievename();
+					if (_type != null)
+					{
+						if (_name != null)
+						{
+							// _property _field , structure
+							FieldBuilder _fieldbuilder = this._classbuilder.DefineField("_field" + _name, _type, FieldAttributes.Private);
 
-					// _property _method , structure , get
-					MethodBuilder _methodbuilderget = this._classbuilder.DefineMethod("_get" + _property._retrievename(),
-						MethodAttributes.Public |
-						MethodAttributes.SpecialName |
-						MethodAttributes.HideBySig,
-						_property._retrievetype(),
-						Type.EmptyTypes
-					);
-					// _property _method , structure , get immediate language generator
-					ILGenerator _immediatelanguagegeneratorget = _methodbuilderget.GetILGenerator();
-					_immediatelanguagegeneratorget.Emit(OpCodes.Ldarg_0);
-					_immediatelanguagegeneratorget.Emit(OpCodes.Ldfld, _fieldbuilder);
-					_immediatelanguagegeneratorget.Emit(OpCodes.Ret);
+							// _property _method , structure , get
+							MethodBuilder _methodbuilderget = this._classbuilder.DefineMethod("_get" + _name,
+								MethodAttributes.Public |
+								MethodAttributes.SpecialName |
+								MethodAttributes.HideBySig,
+								_type,
+								Type.EmptyTypes
+							);
+							// _property _method , structure , get immediate language generator
+							ILGenerator _immediatelanguagegeneratorget = _methodbuilderget.GetILGenerator();
+							_immediatelanguagegeneratorget.Emit(OpCodes.Ldarg_0);
+							_immediatelanguagegeneratorget.Emit(OpCodes.Ldfld, _fieldbuilder);
+							_immediatelanguagegeneratorget.Emit(OpCodes.Ret);
 
-					// _property _method , structure , set
-					MethodBuilder _methodbuilderset = this._classbuilder.DefineMethod("_set" + _property._retrievename(),
-						MethodAttributes.Public |
-						MethodAttributes.SpecialName |
-						MethodAttributes.HideBySig,
-						null,
-						new[] { _property._retrievetype() }
-					);
-					// _property _method , structure , set immediate language generator
-					ILGenerator _immediatelanguagegeneratorset = _methodbuilderset.GetILGenerator();
-					Label _modifyproperty = _immediatelanguagegeneratorset.DefineLabel();
-					Label _exitset = _immediatelanguagegeneratorset.DefineLabel();
-					_immediatelanguagegeneratorset.MarkLabel(_modifyproperty);
-					_immediatelanguagegeneratorset.Emit(OpCodes.Ldarg_0);
-					_immediatelanguagegeneratorset.Emit(OpCodes.Ldarg_1);
-					_immediatelanguagegeneratorset.Emit(OpCodes.Stfld, _fieldbuilder);
-					_immediatelanguagegeneratorset.Emit(OpCodes.Nop);
-					_immediatelanguagegeneratorset.MarkLabel(_exitset);
-					_immediatelanguagegeneratorset.Emit(OpCodes.Ret);
+							// _property _method , structure , set
+							MethodBuilder _methodbuilderset = this._classbuilder.DefineMethod("_set" + _name,
+								MethodAttributes.Public |
+								MethodAttributes.SpecialName |
+								MethodAttributes.HideBySig,
+								null,
+								new[] { _type }
+							);
+							// _property _method , structure , set immediate language generator
+							ILGenerator _immediatelanguagegeneratorset = _methodbuilderset.GetILGenerator();
+							Label _modifyproperty = _immediatelanguagegeneratorset.DefineLabel();
+							Label _exitset = _immediatelanguagegeneratorset.DefineLabel();
+							_immediatelanguagegeneratorset.MarkLabel(_modifyproperty);
+							_immediatelanguagegeneratorset.Emit(OpCodes.Ldarg_0);
+							_immediatelanguagegeneratorset.Emit(OpCodes.Ldarg_1);
+							_immediatelanguagegeneratorset.Emit(OpCodes.Stfld, _fieldbuilder);
+							_immediatelanguagegeneratorset.Emit(OpCodes.Nop);
+							_immediatelanguagegeneratorset.MarkLabel(_exitset);
+							_immediatelanguagegeneratorset.Emit(OpCodes.Ret);
 
-					// _property , structure , off get set
-					PropertyBuilder _propertybuilder = this._classbuilder.DefineProperty(_property._retrievename(), PropertyAttributes.HasDefault, _property._retrievetype(), null);
-					_propertybuilder.SetGetMethod(_methodbuilderget);
-					_propertybuilder.SetSetMethod(_methodbuilderset);
+							// _property , structure , off get set
+							PropertyBuilder _propertybuilder = this._classbuilder.DefineProperty(_name, PropertyAttributes.HasDefault, _type, null);
+							_propertybuilder.SetGetMethod(_methodbuilderget);
+							_propertybuilder.SetSetMethod(_methodbuilderset);
 
-					_issuccess = true;
+							_issuccess = true;
+                        }
+                        else
+                        {
+                            throw new Exception("Provided _name is null.");
+                        }
+                    }
+					else
+					{
+						throw new Exception("Provided _type is null.");
+					}
                 }
 				catch (Exception _exception)
 				{
@@ -534,13 +553,30 @@ namespace _unit
             }
         }
 
-		#endregion
-	}
+        #endregion
 
-	/// <summary>
-	/// _class off configuration
-	/// </summary>
-	public class _classconfiguration
+        #region _classcontainerbatch
+
+        /// <summary>
+        /// _classcontainerbatch
+        /// </summary>
+        public class _classcontainerbatch
+		{
+            #region constructor
+
+            public _classcontainerbatch(Dictionary<Guid, _entityset> _classset) { }
+			public _classcontainerbatch(KeyValuePair<Guid, _entityset> _classset) { }
+
+			#endregion
+		}
+
+        #endregion
+    }
+
+    /// <summary>
+    /// _class off configuration
+    /// </summary>
+    public class _classconfiguration
 	{
 		#region attribute
 
@@ -689,7 +725,7 @@ namespace _unit
 			/// retrieve _type
 			/// </summary>
 			/// <returns>_type</returns>
-			public Type _retrievetype()
+			public Type? _retrievetype()
 			{
 				return this._type;
 			}
