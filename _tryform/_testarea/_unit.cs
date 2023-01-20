@@ -189,35 +189,32 @@ namespace _unit
                     new _classconfiguration._propertyconfiguration("Int32", "_id"),
                     new _classconfiguration._propertyconfiguration("String", "_fullname"),
                     new _classconfiguration._propertyconfiguration("String", "_address"),
-                    new _classconfiguration._propertyconfiguration("Boolean", "_isdied"),
+                    new _classconfiguration._propertyconfiguration("Boolean", "_isdead"),
                     new _classconfiguration._propertyconfiguration("String", "_foo")
                     }
                 );
-
                 // _class _loremipsum , creating _class
                 _unit _loremipsum = new _unit(_loremipsumclassconfig);
+                // _class _loremipsum , creating _entity _foobar
+                _instance _foobar = new _instance(_loremipsum);
+                // _entity _foobar , assiging properties
+                if (_foobar != null)
+                {
+                    _foobar._assignproperties(new Dictionary<string, object?>() {
+                        {"_id", 796},
+                        {"_fullname", "Debaprasad Tapader"},
+                        {"_address", "Deoghar, JH, IN"},
+                        {"_isdead", true},
+                        {"_foo", null}
+                    });
 
-                //// _class _loremipsum , creating _entity _foobar
-                //_instance _foobar = new _instance(_loremipsum);
-
-                //// _entity _foobar , assiging properties
-                //if (_foobar != null)
-                //{
-                //    _foobar._assignproperties(new Dictionary<string, object?>() {
-                //        {"_id", 796},
-                //        {"_fullname", "Debaprasad Tapader"},
-                //        {"_address", "Deoghar, JH, IN"},
-                //        {"_isdead", true},
-                //        {"_foo", null}
-                //    });
-
-                //    // _entitycontainer , assigning _entity _foobar
-                //    this._assignenitycontainer(_foobar._retrieveentity());
-                //}
+                    // _entitycontainer , assigning _entity _foobar
+                    this._assignenitycontainer(_foobar._retrieveentity());
+                }
 
                 // block , end
 
-                //if (_foobar != null)
+                if (_foobar != null)
                 {
                     // block , start
 
@@ -237,11 +234,10 @@ namespace _unit
                     if (_foobar101 != null)
                     {
                         _foobar101._assignproperties(new Dictionary<string, object?>() {
-                            //{"_loremipsum", _foobar._retrieveentity()},
-                            {"_loremipsum", null},
+                            {"_loremipsum", _foobar._retrieveentity()},
                             {"_sector", "Matter Design"},
                             {"_year", 2003},
-                            {"_isactive", true}
+                            {"_isactive", false}
                         });
                         this._assignenitycontainer(_foobar101._retrieveentity());
                     }

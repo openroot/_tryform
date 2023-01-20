@@ -13,7 +13,7 @@ namespace _unit
 
 		private readonly _classconfiguration _classconfiguration;
 		private TypeBuilder? _classbuilder { get; set; }
-		private Type _class { get; set; }
+		private Type? _class { get; set; }
 
 		#endregion
 
@@ -26,27 +26,47 @@ namespace _unit
 		public _unit(_classconfiguration _classconfiguration)
 		{
 			this._classconfiguration = _classconfiguration;
-			this._class = typeof(System.Nullable);
+			this._class = null;
 
-			if (this._rectifyclassconfiguration())
+			if (!this._process())
 			{
-				// block , start
-
-				this._structure();
-
-				this._createunit();
-
-				// block , end
-			}
-			else
-			{
-				throw new Exception("Provided _classconfiguration is invalid.");
-			}
+                throw new Exception("_unit is not created.");
+            }
 		}
 
 		#endregion
 
 		#region private
+
+		private bool _process()
+		{
+			bool _issuccess = false;
+
+            if (this._rectifyclassconfiguration())
+            {
+                if (this._structure())
+                {
+                    if (this._createunit())
+                    {
+                        if (_classcontainer._assigntype(this._retrievetype()))
+						{
+							_issuccess = true;
+						}
+						else
+                        {
+                            this._reset();
+                            throw new Exception("_unit is not created.");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                throw new Exception("Provided _classconfiguration is invalid.");
+            }
+
+            return _issuccess;
+		}
 
 		private bool _rectifyclassconfiguration()
 		{
@@ -96,23 +116,32 @@ namespace _unit
 			return false;
 		}
 
-		private void _structure()
+		private bool _structure()
 		{
+			bool _issuccess = true;
 			// _unit off class
-			this._structureunitclass();
-
-			// _unit off constructor
-			this._structureunitconstructor();
-
-			// _unit off properties
-			for (int _index = 0; _index < this._classconfiguration._retrieveproperties().Count; _index++)
+			if (this._structureunitclass())
 			{
-				this._structureunitproperty(_index);
+				// _unit off constructor
+				if (this._structureunitconstructor())
+				{
+					// _unit off properties
+					for (int _index = 0; _index < this._classconfiguration._retrieveproperties().Count; _index++)
+					{
+                        _issuccess = this._structureunitproperty(_index);
+						if (!_issuccess)
+						{
+							break;
+						}
+					}
+				}
 			}
+			return _issuccess;
 		}
 
-		private void _structureunitclass()
+		private bool _structureunitclass()
 		{
+			bool _issuccess = false;
 			try
 			{
 				// _assembly , name
@@ -134,15 +163,18 @@ namespace _unit
 					TypeAttributes.AutoLayout,
 					null
 				);
+				_issuccess = true;
 			}
 			catch (Exception _exception)
 			{
 				throw new Exception(_exception.Message);
 			}
+			return _issuccess;
 		}
 
-		private void _structureunitconstructor()
+		private bool _structureunitconstructor()
 		{
+			bool _issuccess = false;
 			if (this._classbuilder != null)
 			{
 				try
@@ -153,16 +185,19 @@ namespace _unit
 						MethodAttributes.SpecialName |
 						MethodAttributes.RTSpecialName
 					);
+					_issuccess = true;
 				}
 				catch (Exception _exception)
 				{
 					throw new Exception(_exception.Message);
 				}
 			}
+			return _issuccess;
 		}
 
-		private void _structureunitproperty(int _index)
+		private bool _structureunitproperty(int _index)
 		{
+			bool _issuccess = false;
 			if (this._classbuilder != null)
 			{
 				try
@@ -210,46 +245,58 @@ namespace _unit
 					PropertyBuilder _propertybuilder = this._classbuilder.DefineProperty(_property._retrievename(), PropertyAttributes.HasDefault, _property._retrievetype(), null);
 					_propertybuilder.SetGetMethod(_methodbuilderget);
 					_propertybuilder.SetSetMethod(_methodbuilderset);
-				}
+
+					_issuccess = true;
+                }
 				catch (Exception _exception)
 				{
 					throw new Exception(_exception.Message);
 				}
 			}
+			return _issuccess;
 		}
 
-		private void _createunit()
+		private bool _createunit()
 		{
+			bool _issuccess = false;
 			try
 			{
 				this._class = this._classbuilder?.CreateType() ?? typeof(System.Nullable);
+				_issuccess = true;
 			}
 			catch (Exception _exception)
 			{
 				throw new Exception(_exception.Message);
 			}
+			return _issuccess;
 		}
 
-		#endregion
+		private void _reset()
+		{
+			this._classbuilder = null;
+			this._class = null;
+		}
 
-		#region public
+        #endregion
 
-		/// <summary>
-		/// retrieve _type
-		/// </summary>
-		/// <returns>_type</returns>
-		public Type _retrievetype()
+        #region public
+
+        /// <summary>
+        /// retrieve _classconfiguration
+        /// </summary>
+        /// <returns>_classconfiguration</returns>
+        public _classconfiguration _retrieveclassconfiguration()
+        {
+            return this._classconfiguration;
+        }
+
+        /// <summary>
+        /// retrieve _type
+        /// </summary>
+        /// <returns>_type</returns>
+        public Type? _retrievetype()
 		{
 			return this._class;
-		}
-
-		/// <summary>
-		/// retrieve _classconfiguration
-		/// </summary>
-		/// <returns>_classconfiguration</returns>
-		public _classconfiguration _retrieveclassconfiguration()
-		{
-			return this._classconfiguration;
 		}
 
 		/// <summary>
@@ -261,11 +308,19 @@ namespace _unit
 			object? _entity = null;
 			try
 			{
-				object? _entitytemp = Activator.CreateInstance(this._retrievetype());
-				if (_classcontainer._assignentity(_entitytemp))
+				Type? _type = this._retrievetype();
+				if (_type != null)
 				{
-					_entity = _entitytemp;
+					object? _entitytemp = Activator.CreateInstance(_type);
+					if (_classcontainer._assignentity(_entitytemp))
+					{
+						_entity = _entitytemp;
+					}
 				}
+				else
+				{
+					throw new Exception("Could not create _class _entity. Provided _type is null.");
+                }
 			}
 			catch (Exception _exception)
 			{
@@ -276,6 +331,8 @@ namespace _unit
 
         #endregion
 
+        #region _classcontainer
+
         /// <summary>
         /// _class _entity off _classcontainer
         /// </summary>
@@ -285,20 +342,53 @@ namespace _unit
 
 			private static Dictionary<Guid, _entityset> _classset = new Dictionary<Guid, _entityset>() { };
 
-			#endregion
+            #endregion
 
-			#region public
+            #region public
 
-			public static bool _assigntype(Type? _type)
+            /// <summary>
+            /// retrieve _classset
+            /// </summary>
+            /// <returns>classset</returns>
+            public static Dictionary<Guid, _entityset> _retrieveclassset()
+            {
+                return _classset;
+            }
+            
+			/// <summary>
+            /// assign _type
+            /// </summary>
+            /// <param name="_type"></param>
+            /// <returns>bool</returns>
+            /// <exception cref="Exception"></exception>
+            public static bool _assigntype(Type? _type)
 			{
 				bool _issuccess = false;
 
 				if (_type != null)
-				{
-					Guid _guid = _type.GUID;
-				}
+                {
+                    try
+                    {
+                        Guid _guid = _type.GUID;
+                        // assign new _guid off _type , if not already assign double-check
+                        if (!_classset.ContainsKey(_guid))
+                        {
+                            _entityset _entityset = new _entityset(_type);
+                            _classset.Add(_guid, _entityset);
+                        }
+                        _issuccess = true;
+                    }
+                    catch (Exception _exception)
+                    {
+                        throw new Exception(_exception.Message);
+                    }
+                }
+                else
+                {
+                    throw new Exception("Provided _type is null.");
+                }
 
-				return _issuccess;
+                return _issuccess;
 			}
 
 			/// <summary>
@@ -344,15 +434,6 @@ namespace _unit
 				return _issuccess;
 			}
 
-            /// <summary>
-            /// retrieve _classset
-            /// </summary>
-            /// <returns>classset</returns>
-            public static Dictionary<Guid, _entityset> _retrieveclassset()
-			{
-				return _classset;
-            }
-
             #endregion
 
             /// <summary>
@@ -396,21 +477,30 @@ namespace _unit
 				#region public
 
 				/// <summary>
-				/// retrieve _name
-				/// </summary>
-				/// <returns>_name</returns>
-				public string? _retrievename()
-				{
-					return this._name;
-				}
-
-				/// <summary>
 				/// retrieve _guid
 				/// </summary>
 				/// <returns>_guid</returns>
 				public Guid? _retrieveguid()
 				{
 					return this._guid;
+				}
+
+                /// <summary>
+                /// retrieve _type
+                /// </summary>
+                /// <returns>_type</returns>
+                public Type? _retrievetype()
+				{
+					return this._type;
+				}
+
+				/// <summary>
+				/// retrieve _name
+				/// </summary>
+				/// <returns>_name</returns>
+				public string? _retrievename()
+				{
+					return this._name;
 				}
 
 				/// <summary>
@@ -426,8 +516,9 @@ namespace _unit
 					{
 						try
 						{
-							this._guid = this._guid ?? _entity.GetType().GUID;
-							this._name = this._name ?? _entity.GetType().Name;
+							Type _type = _entity.GetType();
+                            this._guid = this._guid ?? _type.GUID;
+							this._name = this._name ?? _type.Name;
 							this._entities.Add(_entity);
 							_issuccess = true;
 						}
@@ -442,7 +533,9 @@ namespace _unit
 				#endregion
             }
         }
-    }
+
+		#endregion
+	}
 
 	/// <summary>
 	/// _class off configuration
@@ -491,12 +584,14 @@ namespace _unit
 			return this._properties;
 		}
 
-		#endregion
+        #endregion
 
-		/// <summary>
-		/// _property off configuration
-		/// </summary>
-		public class _propertyconfiguration
+        #region _propertyconfiguration
+
+        /// <summary>
+        /// _property off configuration
+        /// </summary>
+        public class _propertyconfiguration
 		{
 			#region attribute
 
@@ -505,7 +600,7 @@ namespace _unit
 			/// </summary>
 			public enum _enumtypedefault : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
 
-			private readonly Type _type;
+			private readonly Type? _type;
 			private readonly string _name;
 
 			#endregion
@@ -517,7 +612,7 @@ namespace _unit
 			/// </summary>
 			/// <param name="_type">_type , Type</param>
 			/// <param name="_name">_name</param>
-			public _propertyconfiguration(Type _type, string _name)
+			public _propertyconfiguration(Type? _type, string _name)
 			{
 				this._type = _type;
 				this._name = _name;
@@ -639,6 +734,8 @@ namespace _unit
 
 			#endregion
 		}
+
+		#endregion
 	}
 
 	/// <summary>
@@ -739,15 +836,6 @@ namespace _unit
 
         #region public
 
-		/// <summary>
-        /// retrieve _type
-        /// </summary>
-        /// <returns>_type</returns>
-        public Type _retrievetype()
-        {
-            return this._type;
-        }
-
         /// <summary>
         /// retrieve _entity
         /// </summary>
@@ -755,6 +843,15 @@ namespace _unit
         public object _retrieveentity()
         {
             return this._entity;
+        }
+
+		/// <summary>
+        /// retrieve _type
+        /// </summary>
+        /// <returns>_type</returns>
+        public Type _retrievetype()
+        {
+            return this._type;
         }
 		
         /// <summary>
