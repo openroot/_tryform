@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
 using Label = System.Reflection.Emit.Label;
-//using _propertyconfiguration = _unit._classconfiguration._propertyconfiguration;
 
 namespace _unit
 {
@@ -262,7 +261,11 @@ namespace _unit
 			object? _entity = null;
 			try
 			{
-				_entity = Activator.CreateInstance(this._retrievetype());
+				object? _entitytemp = Activator.CreateInstance(this._retrievetype());
+				if (_classcontainer._assignclass(_entitytemp))
+				{
+					_entity = _entitytemp;
+				}
 			}
 			catch (Exception _exception)
 			{
@@ -271,8 +274,153 @@ namespace _unit
 			return _entity;
 		}
 
-		#endregion
-	}
+        #endregion
+
+        /// <summary>
+        /// _class _entity off _classcontainer
+        /// </summary>
+        public static class _classcontainer
+		{
+			#region attribute
+
+			private static Dictionary<Guid, _entityset> _classset = new Dictionary<Guid, _entityset>() { };
+			
+			#endregion
+
+			#region public
+
+			/// <summary>
+			/// assign _entity
+			/// </summary>
+			/// <param name="_entity"></param>
+			/// <returns>bool</returns>
+			/// <exception cref="Exception"></exception>
+			public static bool _assignclass(object? _entity)
+			{
+				bool _issuccess = false;
+
+				if (_entity != null)
+				{
+					try
+					{
+						_entityset _entityset = new _entityset();
+						_entityset._assignentity(_entity);
+
+						Guid _guid = _entity.GetType().GUID;
+						// assign new _guid off _entity , if not already assign
+						if (!_classset.ContainsKey(_guid))
+						{
+							_classset.Add(_guid, _entityset);
+						}
+						// assign _enity _guid
+						if (_classset.ContainsKey(_guid))
+						{
+							_classset[_guid]._assignentity(_entity);
+						}
+						_issuccess = true;
+					}
+					catch (Exception _exception)
+					{
+						throw new Exception(_exception.Message);
+					}
+                }
+				else
+				{
+					throw new Exception("Provided _entity is null.");
+				}
+
+				return _issuccess;
+			}
+
+            /// <summary>
+            /// retrieve _classset
+            /// </summary>
+            /// <returns>classset</returns>
+            public static Dictionary<Guid, _entityset> _retrieveclassset()
+			{
+				// TODO: debug first _entity assign double place
+				return _classset;
+            }
+
+            #endregion
+
+            /// <summary>
+            /// _entity off _entityset
+            /// </summary>
+            public class _entityset
+			{
+                #region attribute
+
+                private Guid? _guid { get; set; }
+                private string? _name { get; set; }
+				private List<object>? _entities;
+
+				#endregion
+
+				#region constructor
+
+				/// <summary>
+				/// _entityset
+				/// </summary>
+				public _entityset()
+				{
+					this._guid = null;
+					this._name = null;
+					this._entities = new List<object>() { };
+				}
+
+				#endregion
+
+				#region public
+
+				/// <summary>
+				/// retrieve _name
+				/// </summary>
+				/// <returns>_name</returns>
+				public string? _retrievename()
+				{
+					return this._name;
+				}
+
+				/// <summary>
+				/// retrieve _guid
+				/// </summary>
+				/// <returns>_guid</returns>
+				public Guid? _retrieveguid()
+				{
+					return this._guid;
+				}
+
+				/// <summary>
+				/// assign _entity
+				/// </summary>
+				/// <param name="_entity">_entity</param>
+				/// <returns>bool</returns>
+				/// <exception cref="Exception"></exception>
+				public bool _assignentity(object _entity)
+				{
+					bool _issuccess = false;
+					if (this._entities != null)
+					{
+						try
+						{
+							this._guid = this._guid ?? new Guid();
+							this._name = this._name ?? _entity.GetType().Name;
+							this._entities.Add(_entity);
+							_issuccess = true;
+						}
+						catch (Exception _exception)
+						{
+							throw new Exception(_exception.Message);
+						}
+                    }
+					return _issuccess;
+				}
+
+				#endregion
+            }
+        }
+    }
 
 	/// <summary>
 	/// _class off configuration
@@ -442,7 +590,7 @@ namespace _unit
 			/// check if provided type is systemdefault
 			/// </summary>
 			/// <param name="_type">_type</param>
-			/// <returns>true\false</returns>
+			/// <returns>bool</returns>
 			public static bool _ispropertysystemdefault(Type _type)
 			{
 				bool _issystemdefault;
@@ -470,6 +618,7 @@ namespace _unit
 			#endregion
 		}
 	}
+
 	/// <summary>
 	/// _unit off _instance
 	/// </summary>

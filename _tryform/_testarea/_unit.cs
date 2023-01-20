@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static _unit._unit._classcontainer;
 
 namespace _unit
 {
@@ -259,6 +260,7 @@ namespace _unit
                     // block , end
                 }
                 Console.Write("unit loremipsum created");
+                Dictionary<Guid, _entityset> _classset = _unit._classcontainer._retrieveclassset();
             }
             catch (Exception _exception)
             {
