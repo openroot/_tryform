@@ -136,7 +136,7 @@ namespace _unit
                     _message = string.Empty;
 
                     // get if property is system default type
-                    bool _ispropertysystemdefaulttype = _propertyconfiguration._ispropertysystemdefault(_property.PropertyType);
+                    bool _ispropertysystemdefaulttype = _classconfiguration._propertyconfiguration._ispropertysystemdefault(_property.PropertyType);
 
                     // output property order number
                     _message += Environment.NewLine + _indentmessage + "\t(" + ++_propertycount + ".) ";
@@ -184,12 +184,12 @@ namespace _unit
                 // _class _loremipsum , _classconfiguration
                 _classconfiguration _loremipsumclassconfig = new _classconfiguration(
                     "_loremipsum",
-                    new List<_propertyconfiguration>() {
-                    new _propertyconfiguration("Int32", "_id"),
-                    new _propertyconfiguration("String", "_fullname"),
-                    new _propertyconfiguration("String", "_address"),
-                    new _propertyconfiguration("Boolean", "_isdied"),
-                    new _propertyconfiguration("String", "_foo")
+                    new List<_classconfiguration._propertyconfiguration>() {
+                    new _classconfiguration._propertyconfiguration("Int32", "_id"),
+                    new _classconfiguration._propertyconfiguration("String", "_fullname"),
+                    new _classconfiguration._propertyconfiguration("String", "_address"),
+                    new _classconfiguration._propertyconfiguration("Boolean", "_isdied"),
+                    new _classconfiguration._propertyconfiguration("String", "_foo")
                     }
                 );
 
@@ -222,12 +222,12 @@ namespace _unit
 
                     _classconfiguration _loremipsumseparateclassconfig = new _classconfiguration(
                         "_loremipsumseparate",
-                        new List<_propertyconfiguration>() {
-                            //new _propertyconfiguration(_foobar._retrievetype(), "_loremipsum"),
-                            new _propertyconfiguration(_loremipsum._retrievetype(), "_loremipsum"),
-                            new _propertyconfiguration("String", "_sector"),
-                            new _propertyconfiguration("Int32", "_year"),
-                            new _propertyconfiguration("Boolean", "_isactive")
+                        new List<_classconfiguration._propertyconfiguration>() {
+                            //new _classconfiguration._propertyconfiguration(_foobar._retrievetype(), "_loremipsum"),
+                            new _classconfiguration._propertyconfiguration(_loremipsum._retrievetype(), "_loremipsum"),
+                            new _classconfiguration._propertyconfiguration("String", "_sector"),
+                            new _classconfiguration._propertyconfiguration("Int32", "_year"),
+                            new _classconfiguration._propertyconfiguration("Boolean", "_isactive")
                         }
                     );
                     _unit _loremipsumseparate = new _unit(_loremipsumseparateclassconfig);
