@@ -11,53 +11,53 @@ namespace _unit
     {
         #region attribute
 
-        private Dictionary<Guid, List<object>> _unitcontainer = new Dictionary<Guid, List<object>>() { };
+        private Dictionary<Guid, List<object>> _entitycontainer = new Dictionary<Guid, List<object>>() { };
 
         #endregion
 
         #region Functionality named Module Operations
 
-        private void _unitcontainerassign(Object _instance)
+        private void _assignenitycontainer(object _entity)
         {
-            if (this._unitcontainer != null)
+            if (this._entitycontainer != null)
             {
                 // block , start
-                if (_instance != null)
+                if (_entity != null)
                 {
-                    Guid _guid = _instance.GetType().GUID;
+                    Guid _guid = _entity.GetType().GUID;
                     // add new unit off guid , if not already added
-                    if (!_unitcontainer.ContainsKey(_guid))
+                    if (!_entitycontainer.ContainsKey(_guid))
                     {
-                        _unitcontainer.Add(_guid, new List<Object>());
+                        _entitycontainer.Add(_guid, new List<object>());
                     }
                     // now , connect instance to guid respective
-                    if (_unitcontainer.ContainsKey(_guid))
+                    if (_entitycontainer.ContainsKey(_guid))
                     {
-                        _unitcontainer[_guid].Add(_instance);
+                        _entitycontainer[_guid].Add(_entity);
                     }
                 }
                 else
                 {
-                    throw new Exception("Provided instance is null");
+                    throw new Exception("Provided _enity is null");
                 }
                 // block , end
             }
             else
             {
-                throw new Exception("Provided container off instance is null");
+                throw new Exception("Provided container off _entity is null");
             }
         }
         
         public void _traversemodules(char _operation)
         {
             // unitcontainer , traverse
-            if (this._unitcontainer != null)
+            if (this._entitycontainer != null)
             {
                 // block , start
 
                 int _unitcount = 0; // unit counter
                 // unitcategory , loop through
-                foreach (KeyValuePair<Guid, List<Object>> _unitcategory in this._unitcontainer)
+                foreach (KeyValuePair<Guid, List<Object>> _unitcategory in this._entitycontainer)
                 {
                     string _message = _unitcount > 0 ? Environment.NewLine + Environment.NewLine : string.Empty;
 
@@ -181,8 +181,8 @@ namespace _unit
             {
                 // block , start
 
-                // unit loremipsum , configuration
-                _unitconfiguration _loremipsumconfig = new _unitconfiguration(
+                // _class _loremipsum , _classconfiguration
+                _classconfiguration _loremipsumclassconfig = new _classconfiguration(
                     "_loremipsum",
                     new List<_propertyconfiguration>() {
                     new _propertyconfiguration("Int32", "_id"),
@@ -193,16 +193,16 @@ namespace _unit
                     }
                 );
 
-                // unit loremipsum , creating
-                _unit _loremipsum = new _unit(_loremipsumconfig);
+                // _class _loremipsum , creating _class
+                _unit _loremipsum = new _unit(_loremipsumclassconfig);
 
-                // unit loremipsum , creating instance foobar
+                // _class _loremipsum , creating _entity _foobar
                 _instance _foobar = new _instance(_loremipsum);
 
-                // instance foobar , assiging value
+                // _entity _foobar , assiging properties
                 if (_foobar != null)
                 {
-                    _foobar._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
+                    _foobar._assignproperties(new Dictionary<string, KeyValuePair<object?, object?>>() {
                         {"_id", new KeyValuePair<object?, object?>(796, null) { } },
                         {"_fullname", new KeyValuePair<object?, object?>("Debaprasad Tapader", null) { } },
                         {"_address", new KeyValuePair<object?, object?>("Deoghar, JH, IN", null) { } },
@@ -210,8 +210,8 @@ namespace _unit
                         {"_foo", new KeyValuePair<object?, object?>(null, null) { } }
                     });
 
-                    // unitcontainer , assigning foobar instance
-                    this._unitcontainerassign(_foobar._retrieveinstanceobject());
+                    // _entitycontainer , assigning _entity _foobar
+                    this._assignenitycontainer(_foobar._retrieveentity());
                 }
 
                 // block , end
@@ -220,39 +220,39 @@ namespace _unit
                 {
                     // block , start
 
-                    _unitconfiguration _loremipsumseparateconfig = new _unitconfiguration(
+                    _classconfiguration _loremipsumseparateclassconfig = new _classconfiguration(
                         "_loremipsumseparate",
                         new List<_propertyconfiguration>() {
-                            new _propertyconfiguration(_foobar._retrieveinstancetype(), "_loremipsum"),
+                            new _propertyconfiguration(_foobar._retrievetype(), "_loremipsum"),
                             new _propertyconfiguration("String", "_sector"),
                             new _propertyconfiguration("Int32", "_year"),
                             new _propertyconfiguration("Boolean", "_isactive")
                         }
                     );
-                    _unit _loremipsumseparate = new _unit(_loremipsumseparateconfig);
+                    _unit _loremipsumseparate = new _unit(_loremipsumseparateclassconfig);
 
                     _instance _foobar101 = new _instance(_loremipsumseparate);
                     if (_foobar101 != null)
                     {
-                        _foobar101._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
-                            {"_loremipsum", new KeyValuePair<object?, object?>(_foobar._retrieveinstanceobject(), null) { } },
+                        _foobar101._assignproperties(new Dictionary<string, KeyValuePair<object?, object?>>() {
+                            {"_loremipsum", new KeyValuePair<object?, object?>(_foobar._retrieveentity(), null) { } },
                             {"_sector", new KeyValuePair<object?, object?>("Matter Design", null) { } },
                             {"_year", new KeyValuePair<object?, object?>(2003, null) { } },
                             {"_isactive", new KeyValuePair<object?, object?>(true, null) { } }
                         });
-                        this._unitcontainerassign(_foobar101._retrieveinstanceobject());
+                        this._assignenitycontainer(_foobar101._retrieveentity());
                     }
 
                     _instance _foobar201 = new _instance(_loremipsumseparate);
                     if (_foobar201 != null)
                     {
-                        _foobar201._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
+                        _foobar201._assignproperties(new Dictionary<string, KeyValuePair<object?, object?>>() {
                             {"_loremipsum", new KeyValuePair<object?, object?>(null, null) { } },
                             {"_sector", new KeyValuePair<object?, object?>("Classic Culture", null) { } },
                             {"_year", new KeyValuePair<object?, object?>(2004, null) { } },
                             {"_isactive", new KeyValuePair<object?, object?>(true, null) { } }
                         });
-                        this._unitcontainerassign(_foobar201._retrieveinstanceobject());
+                        this._assignenitycontainer(_foobar201._retrieveentity());
                     }
 
                     // block , end

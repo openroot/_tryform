@@ -11,24 +11,24 @@ namespace _unit
 	{
 		#region attribute
 
-		public readonly _unitconfiguration _unitconfiguration;
+		public readonly _classconfiguration _classconfiguration;
 		private TypeBuilder? _classbuilder { get; set; }
 		private Type _class { get; set; }
 
-		#endregion
+        #endregion
 
-		#region constructor
+        #region constructor
 
-		/// <summary>
-		/// construct _unit
-		/// </summary>
-		/// <param name="_unitconfiguration">_unitconfiguration</param>
-		public _unit(_unitconfiguration _unitconfiguration)
+        /// <summary>
+        /// construct _unit
+        /// </summary>
+        /// <param name="_classconfiguration">_classconfiguration</param>
+        public _unit(_classconfiguration _classconfiguration)
 		{
-			this._unitconfiguration = _unitconfiguration;
+			this._classconfiguration = _classconfiguration;
 			this._class = typeof(Nullable);
 
-            if (this._rectifyconfiguration())
+            if (this._rectifyclassconfiguration())
 			{
 				// block , start
 
@@ -40,7 +40,7 @@ namespace _unit
 			}
 			else
 			{
-				throw new Exception("Provided _unitconfiguration is invalid.");
+				throw new Exception("Provided _classconfiguration is invalid.");
             }
 		}
 
@@ -48,21 +48,17 @@ namespace _unit
 
 		#region private
 
-		private bool _rectifyconfiguration()
+		private bool _rectifyclassconfiguration()
 		{
-			// check if configuration file not null
-			if (this._unitconfiguration != null)
+            if (this._classconfiguration != null)
 			{
-				// check if name of this unit not null
-				if (!string.IsNullOrEmpty(this._unitconfiguration._retrievename()))
+				if (!string.IsNullOrEmpty(this._classconfiguration._retrievename()))
 				{
 					bool _ispropertiescompliant = true;
 
-					// check if properties of this unit not null
-					if (this._unitconfiguration._retrieveproperties() != null)
+					if (this._classconfiguration._retrieveproperties() != null)
 					{
-						// check if properties of this unit are compliant
-						foreach (_propertyconfiguration _property in this._unitconfiguration._retrieveproperties())
+						foreach (_propertyconfiguration _property in this._classconfiguration._retrieveproperties())
 						{
 							if (
 								String.IsNullOrEmpty(_property._retrievename()) ||
@@ -73,7 +69,7 @@ namespace _unit
 							}
 						}
 
-                        // return configuration checked as valid
+                        // return _classconfiguration checked as valid
                         if (_ispropertiescompliant)
 						{
 							return true;
@@ -81,21 +77,21 @@ namespace _unit
 					}
 					else if (!_ispropertiescompliant)
 					{
-						throw new Exception("Property(s) of this unit is/are not compliant in provided unit configuration file.");
+						throw new Exception("Property(s) of this unit is/are not compliant in provided _classconfiguration.");
 					}
 					else
 					{
-						throw new Exception("Property(s) of this unit returned null in provided unit configuration file.");
+						throw new Exception("Property(s) of this unit returned null in provided _classconfiguration.");
 					}
 				}
 				else
 				{
-					throw new Exception("Name of this unit returned null or empty in provided unit configuration file.");
+					throw new Exception("Name of this unit returned null or empty in provided _classconfiguration.");
 				}
 			}
 			else
 			{
-				throw new Exception("Unit configuration file not provided at startup.");
+				throw new Exception("_classconfiguration not provided at startup.");
 			}
 			return false;
 		}
@@ -109,7 +105,7 @@ namespace _unit
             this._structureunitconstructor();
 			
 			// _unit off properties
-			for (int _index = 0; _index < this._unitconfiguration._retrieveproperties().Count; _index++)
+			for (int _index = 0; _index < this._classconfiguration._retrieveproperties().Count; _index++)
 			{
 				this._structureunitproperty(_index);
             }
@@ -120,13 +116,13 @@ namespace _unit
 			try
 			{
 				// _assembly , name
-				AssemblyName _assemblyname = new AssemblyName(this._unitconfiguration._retrievename());
+				AssemblyName _assemblyname = new AssemblyName(this._classconfiguration._retrievename());
 
 				// _assembly , structure
 				AssemblyBuilder _assemblybuilder = AssemblyBuilder.DefineDynamicAssembly(_assemblyname, AssemblyBuilderAccess.RunAndCollect);
 
 				// _module , structure
-				ModuleBuilder _modulebuilder = _assemblybuilder.DefineDynamicModule(this._unitconfiguration._retrievename());
+				ModuleBuilder _modulebuilder = _assemblybuilder.DefineDynamicModule(this._classconfiguration._retrievename());
 
 				// _class , structure
 				this._classbuilder = _modulebuilder.DefineType(_assemblyname.FullName,
@@ -151,7 +147,7 @@ namespace _unit
 			{
 				try
 				{
-					// _unit constructor , structure
+					// _class constructor , structure
 					this._classbuilder?.DefineDefaultConstructor(
 						MethodAttributes.Public |
 						MethodAttributes.SpecialName |
@@ -171,7 +167,7 @@ namespace _unit
             {
 				try
 				{
-					_propertyconfiguration _property = this._unitconfiguration._retrieveproperties()[_index];
+					_propertyconfiguration _property = this._classconfiguration._retrieveproperties()[_index];
 
 					// _property _field , structure
 					FieldBuilder _fieldbuilder = this._classbuilder.DefineField("_field" + _property._retrievename(), _property._retrievetype(), FieldAttributes.Private);
@@ -239,39 +235,39 @@ namespace _unit
         #region public
 
 		/// <summary>
-		/// retrieve _unit
+		/// retrieve _type
 		/// </summary>
-		/// <returns>_unit</returns>
-		public Type _retrieveunit()
+		/// <returns>_type</returns>
+		public Type _retrievetype()
 		{
 			return this._class;
 		}
 
         /// <summary>
-        /// _unit off separate instance
+        /// _unit _class off separate _entity
         /// </summary>
-        /// <returns>instance or null on failure</returns>
-        internal object? _separateinstance()
+        /// <returns>_entity or null on failure</returns>
+        internal object? _separateclassentity()
 		{
-			object? _instance = null;
+			object? _entity = null;
 			try
 			{
-                _instance = Activator.CreateInstance(this._retrieveunit());
+                _entity = Activator.CreateInstance(this._retrievetype());
             }
 			catch (Exception _exception)
 			{
-				throw new Exception("Could not create instance", _exception);
+				throw new Exception("Could not create _class _entity", _exception);
 			}
-			return _instance;
+			return _entity;
 		}
 
 		#endregion
 	}
 
 	/// <summary>
-	/// _unit off configuration
+	/// _class off configuration
 	/// </summary>
-    public class _unitconfiguration
+    public class _classconfiguration
 	{
 		#region attribute
 
@@ -283,11 +279,11 @@ namespace _unit
         #region constructor
 
         /// <summary>
-        /// create _unit off _unitconfiguration
+        /// create _unit off _classconfiguration
         /// </summary>
         /// <param name="_name">_name , e.g., _classloremipsum</param>
         /// <param name="_properties">_properties</param>
-        public _unitconfiguration(string _name, List<_propertyconfiguration> _properties)
+        public _classconfiguration(string _name, List<_propertyconfiguration> _properties)
 		{
 			this._name = _name;
 			this._properties = _properties;
@@ -495,7 +491,7 @@ namespace _unit
 			{
 				// block , start
 
-				this._entity = _unit._separateinstance() ?? throw new Exception("Instance not created.");
+				this._entity = _unit._separateclassentity() ?? throw new Exception("Instance not created.");
                 this._type = this._entity.GetType() ?? throw new Exception("Type not created.");
 				
 				// block , end
@@ -510,7 +506,7 @@ namespace _unit
 
         #region private
 
-        private void _setpropertyvalue(object _entity, PropertyInfo _property, object? _value)
+        private void _assignproperty(object _entity, PropertyInfo _property, object? _value)
         {
             if (_entity != null)
             {
@@ -536,7 +532,7 @@ namespace _unit
 			}
         }
 
-        private object? _getpropertyvalue(object _entity, PropertyInfo _property)
+        private object? _retrieveproperty(object _entity, PropertyInfo _property)
         {
             object? _value = null;
             if (_entity != null)
@@ -569,11 +565,11 @@ namespace _unit
         #region public
 
         /// <summary>
-        /// assign valuset
+        /// assign properties
         /// </summary>
-        /// <param name="_valueset">valuset in form off Dictionary<string, KeyValuePair<object?, object?></param>
+        /// <param name="_valueset">property values in form off Dictionary<string, object?></param>
         /// <exception cref="Exception"></exception>
-        public void _setvalueset(Dictionary<string, KeyValuePair<object?, object?>> _valueset)
+        public void _assignproperties(Dictionary<string, KeyValuePair<object?, object?>> _valueset)
 		{
             if (this._entity != null)
             {
@@ -588,7 +584,7 @@ namespace _unit
                             PropertyInfo? _property = _entity.GetType().GetProperty(_value.Key);
                             if (_property != null)
 							{
-								this._setpropertyvalue(_entity, _property, _value.Value.Key);
+								this._assignproperty(_entity, _property, _value.Value.Key);
 							}
 						}
 						catch (Exception _exception)
@@ -609,11 +605,11 @@ namespace _unit
         }
 
         /// <summary>
-        /// retrieve valuset
+        /// retrieve properties
         /// </summary>
-        /// <returns>valuset in form off Dictionary<string, object?></returns>
+        /// <returns>property values in form off Dictionary<string, object?></returns>
         /// <exception cref="Exception"></exception>
-        public Dictionary<string, object?> _getvalueset()
+        public Dictionary<string, object?> _retrieveproperties()
         {
 			Dictionary<string, object?> _valueset = new Dictionary<string, object?>() { };
             if (this._entity != null)
@@ -622,7 +618,7 @@ namespace _unit
                 {
 					try
 					{
-						_valueset.Add(_property.Name, this._getpropertyvalue(this._entity, _property));
+						_valueset.Add(_property.Name, this._retrieveproperty(this._entity, _property));
 					}
 					catch (Exception _exception)
 					{
@@ -638,19 +634,19 @@ namespace _unit
         }
 
         /// <summary>
-        /// retrieve _instance object
+        /// retrieve _entity
         /// </summary>
-        /// <returns>_instance object</returns>
-        public object _retrieveinstanceobject()
+        /// <returns>_entity</returns>
+        public object _retrieveentity()
         {
             return this._entity;
         }
 		
 		/// <summary>
-        /// retrieve _instance type
+        /// retrieve _type
         /// </summary>
-        /// <returns>_instance type</returns>
-        public Type _retrieveinstancetype()
+        /// <returns>_type</returns>
+        public Type _retrievetype()
         {
             return this._type;
         }
