@@ -583,13 +583,6 @@ namespace _unit
 					{
 						try
 						{
-                            //object _entity = this._entity;
-
-                            //object? _foreignentity = _value.Value.Value; // assign with null off type , if assigned Type is empty
-                            //if (_foreignentity != null) // if _foreignentity not a null off type ; i.e., can not hold instance
-                            //                     {
-                            //	_entity = _foreignentity;
-                            //                     }
                             object _entity = _value.Value.Value ?? this._entity;
 
                             PropertyInfo? _property = _entity.GetType().GetProperty(_value.Key);
