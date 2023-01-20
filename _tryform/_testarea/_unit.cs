@@ -11,7 +11,7 @@ namespace _unit
     {
         #region attribute
 
-        private Dictionary<Guid, List<Object>> _unitcontainer = new Dictionary<Guid, List<Object>>() { };
+        private Dictionary<Guid, List<object>> _unitcontainer = new Dictionary<Guid, List<object>>() { };
 
         #endregion
 
@@ -179,8 +179,6 @@ namespace _unit
         {
             try
             {
-                Type _typeoffnull = typeof(Nullable);
-
                 // block , start
 
                 // unit loremipsum , configuration
@@ -205,11 +203,6 @@ namespace _unit
                 if (_foobar != null)
                 {
                     _foobar._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
-                        //{"_id", 796},
-                        //{"_fullname", "Debaprasad Tapader"},
-                        //{"_address", "Deoghar, JH, IN"},
-                        //{"_isdead", true},
-                        //{"_foo", null}
                         {"_id", new KeyValuePair<object?, object?>(796, null) { } },
                         {"_fullname", new KeyValuePair<object?, object?>("Debaprasad Tapader", null) { } },
                         {"_address", new KeyValuePair<object?, object?>("Deoghar, JH, IN", null) { } },
@@ -218,7 +211,7 @@ namespace _unit
                     });
 
                     // unitcontainer , assigning foobar instance
-                    this._unitcontainerassign(_foobar);
+                    this._unitcontainerassign(_foobar._retrieveinstanceobject());
                 }
 
                 // block , end
@@ -230,7 +223,7 @@ namespace _unit
                     _unitconfiguration _loremipsumseparateconfig = new _unitconfiguration(
                         "_loremipsumseparate",
                         new List<_propertyconfiguration>() {
-                            new _propertyconfiguration(_loremipsum._retrieveunit(), "_loremipsum"),
+                            new _propertyconfiguration(_foobar._retrieveinstancetype(), "_loremipsum"),
                             new _propertyconfiguration("String", "_sector"),
                             new _propertyconfiguration("Int32", "_year"),
                             new _propertyconfiguration("Boolean", "_isactive")
@@ -242,32 +235,24 @@ namespace _unit
                     if (_foobar101 != null)
                     {
                         _foobar101._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
-                            //{"_loremipsum", _foobar},
-                            //{"_sector", "Matter Design"},
-                            //{"_year", 2003},
-                            //{"_isactive", true}
-                            {"_loremipsum", new KeyValuePair<object?, object?>(_foobar, _loremipsum._retrieveunit()) { } },
+                            {"_loremipsum", new KeyValuePair<object?, object?>(_foobar._retrieveinstanceobject(), null) { } },
                             {"_sector", new KeyValuePair<object?, object?>("Matter Design", null) { } },
                             {"_year", new KeyValuePair<object?, object?>(2003, null) { } },
                             {"_isactive", new KeyValuePair<object?, object?>(true, null) { } }
                         });
-                        this._unitcontainerassign(_foobar101);
+                        this._unitcontainerassign(_foobar101._retrieveinstanceobject());
                     }
 
                     _instance _foobar201 = new _instance(_loremipsumseparate);
                     if (_foobar201 != null)
                     {
                         _foobar201._setvalueset(new Dictionary<string, KeyValuePair<object?, object?>>() {
-                            //{"_loremipsum", null},
-                            //{"_sector", "Classic Culture"},
-                            //{"_year", 2004},
-                            //{"_isactive", true}
-                            {"_loremipsum", new KeyValuePair<object?, object?>(null, _loremipsum._retrieveunit()) { } },
+                            {"_loremipsum", new KeyValuePair<object?, object?>(null, null) { } },
                             {"_sector", new KeyValuePair<object?, object?>("Classic Culture", null) { } },
                             {"_year", new KeyValuePair<object?, object?>(2004, null) { } },
                             {"_isactive", new KeyValuePair<object?, object?>(true, null) { } }
                         });
-                        this._unitcontainerassign(_foobar201);
+                        this._unitcontainerassign(_foobar201._retrieveinstanceobject());
                     }
 
                     // block , end

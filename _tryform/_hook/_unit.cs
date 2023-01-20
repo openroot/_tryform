@@ -657,7 +657,7 @@ namespace _unit
         /// retrieve _instance type
         /// </summary>
         /// <returns>_instance type</returns>
-        public object _retrieveinstancetype()
+        public Type _retrieveinstancetype()
         {
             return this._type;
         }
