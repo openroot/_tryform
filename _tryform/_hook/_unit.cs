@@ -553,19 +553,55 @@ namespace _unit
             }
         }
 
-        #endregion
+		#endregion
 
-        #region _classcontainerbatch
+		#region _classcontainerbatch
 
-        /// <summary>
-        /// _classcontainerbatch
-        /// </summary>
-        public class _classcontainerbatch
+		/// <summary>
+		/// _classcontainerbatch
+		/// </summary>
+		public class _classcontainerbatch
 		{
-            #region constructor
+			#region attribute
 
-            public _classcontainerbatch(Dictionary<Guid, _entityset> _classset) { }
-			public _classcontainerbatch(KeyValuePair<Guid, _entityset> _classset) { }
+			private Dictionary<Guid, _entityset> _classset = new Dictionary<Guid, _entityset>() { };
+
+			#endregion
+
+			#region constructor
+
+			public _classcontainerbatch()
+			{
+				this._classset = _classcontainer._retrieveclassset();
+			}
+			public _classcontainerbatch(Dictionary<Guid, _entityset> _classset)
+			{
+				this._classset = _classset;
+			}
+			public _classcontainerbatch(Guid _guid, _entityset _entityset)
+			{
+				this._classset.Add(_guid, _entityset);
+			}
+
+			#endregion
+
+			#region public
+
+			public string? _jsonserialize()
+			{
+				string? _json = null;
+
+				try
+				{
+					_json = JsonSerializer.Serialize(this._classset); // TODO: digest _entityset
+				}
+				catch (Exception _exception)
+				{
+					throw new Exception("json serialize inevitable.", _exception);
+				}
+
+                return _json;
+			}
 
 			#endregion
 		}
@@ -573,10 +609,10 @@ namespace _unit
         #endregion
     }
 
-    /// <summary>
-    /// _class off configuration
-    /// </summary>
-    public class _classconfiguration
+	/// <summary>
+	/// _class off configuration
+	/// </summary>
+	public class _classconfiguration
 	{
 		#region attribute
 
