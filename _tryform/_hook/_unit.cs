@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
 using Label = System.Reflection.Emit.Label;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 using static _unit._unit._classcontainer;
@@ -163,8 +164,9 @@ namespace _unit
 					TypeAttributes.AutoClass |
 					TypeAttributes.AnsiClass |
 					TypeAttributes.BeforeFieldInit |
-					TypeAttributes.AutoLayout,
-					null
+					TypeAttributes.AutoLayout |
+					TypeAttributes.Serializable,
+					this._classconfiguration._retrievetypeparent()
 				);
 				_issuccess = true;
 			}
@@ -618,20 +620,24 @@ namespace _unit
 
 		private readonly string _name;
 		private readonly List<_propertyconfiguration> _properties = new List<_propertyconfiguration>() { };
+		private readonly Type? _typeparent;
 
-		#endregion
+        #endregion
 
-		#region constructor
+        #region constructor
 
-		/// <summary>
+        /// <summary>
 		/// create _unit off _classconfiguration
 		/// </summary>
 		/// <param name="_name">_name , e.g., _classloremipsum</param>
 		/// <param name="_properties">_properties</param>
-		public _classconfiguration(string _name, List<_propertyconfiguration> _properties)
+		/// <param name="_typeparent">_typeparent</param>
+		///
+        public _classconfiguration(string _name, List<_propertyconfiguration> _properties, [Optional]Type? _typeparent)
 		{
 			this._name = _name;
 			this._properties = _properties;
+			this._typeparent = _typeparent;
 		}
 
 		#endregion
@@ -654,6 +660,15 @@ namespace _unit
 		public List<_propertyconfiguration> _retrieveproperties()
 		{
 			return this._properties;
+		}
+
+        /// <summary>
+        /// _type off parent
+        /// </summary>
+        /// <returns>_typeparent</returns>
+        public Type? _retrievetypeparent()
+		{
+			return this._typeparent;
 		}
 
         #endregion

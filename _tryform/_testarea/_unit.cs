@@ -197,9 +197,9 @@ namespace _unit
                 _unit _loremipsum = new _unit(_loremipsumclassconfig);
                 // _class _loremipsum , creating _entity _foobar
                 _instance _foobar = new _instance(_loremipsum);
-                // _entity _foobar , assiging properties
                 if (_foobar != null)
                 {
+                    // _entity _foobar , assiging properties
                     _foobar._assignproperties(new Dictionary<string, object?>() {
                         {"_id", 796},
                         {"_fullname", "Debaprasad Tapader"},
@@ -207,9 +207,6 @@ namespace _unit
                         {"_isdead", true},
                         {"_foo", null}
                     });
-
-                    // _entitycontainer , assigning _entity _foobar
-                    this._assignenitycontainer(_foobar._retrieveentity());
                 }
 
                 // block , end
@@ -229,7 +226,6 @@ namespace _unit
                         }
                     );
                     _unit _loremipsumseparate = new _unit(_loremipsumseparateclassconfig);
-
                     _instance _foobar101 = new _instance(_loremipsumseparate);
                     if (_foobar101 != null)
                     {
@@ -239,9 +235,7 @@ namespace _unit
                             {"_year", 2003},
                             {"_isactive", false}
                         });
-                        this._assignenitycontainer(_foobar101._retrieveentity());
                     }
-
                     _instance _foobar201 = new _instance(_loremipsumseparate);
                     if (_foobar201 != null)
                     {
@@ -251,9 +245,42 @@ namespace _unit
                             {"_year", 2004},
                             {"_isactive", true}
                         });
-                        this._assignenitycontainer(_foobar201._retrieveentity());
                     }
 
+                    // block , end
+
+                    // block , start
+
+                    _classconfiguration _loremipsumchildclassconfig = new _classconfiguration(
+                        "_loremipsumchild",
+                        new List<_classconfiguration._propertyconfiguration>() {
+                            //new _classconfiguration._propertyconfiguration("String", "_address"), // TODO: devise property equal
+                            new _classconfiguration._propertyconfiguration("String", "_service"),
+                            new _classconfiguration._propertyconfiguration("Int32", "_tag"),
+                            new _classconfiguration._propertyconfiguration("Boolean", "_sql"),
+                            new _classconfiguration._propertyconfiguration("Boolean", "_cloud"),
+                            new _classconfiguration._propertyconfiguration("Boolean", "_api")
+                        },
+                        _loremipsum._retrievetype()
+                    );
+                    _unit _loremipsumchild = new _unit(_loremipsumchildclassconfig);
+                    _instance _foobar1001 = new _instance(_loremipsumchild);
+                    if (_foobar1001 != null)
+                    {
+                        _foobar1001._assignproperties(new Dictionary<string, object?>() {
+                            {"_id", 48},
+                            {"_fullname", "Debaprasad Tapader"},
+                            {"_address", "Siliguri, WB, IN"},
+                            {"_isdead", false},
+                            {"_foo", "_loremipsumchild"},
+                            //{"_address", "Deoghar, JH, IN"},   // TODO: devise property equal
+                            { "_service", "expat" },
+                            { "_tag", 301 },
+                            { "_sql", false },
+                            { "_cloud", true },
+                            { "_json", false }
+                        });
+                    }
                     // block , end
                 }
                 Console.Write("unit loremipsum created");
