@@ -254,7 +254,6 @@ namespace _unit
                     _classconfiguration _loremipsumchildclassconfig = new _classconfiguration(
                         "_loremipsumchild",
                         new List<_classconfiguration._propertyconfiguration>() {
-                            //new _classconfiguration._propertyconfiguration("String", "_address"), // TODO: devise property equal
                             new _classconfiguration._propertyconfiguration("String", "_service"),
                             new _classconfiguration._propertyconfiguration("Int32", "_tag"),
                             new _classconfiguration._propertyconfiguration("Boolean", "_sql"),
@@ -273,7 +272,6 @@ namespace _unit
                             {"_address", "Siliguri, WB, IN"},
                             {"_isdead", false},
                             {"_foo", "_loremipsumchild"},
-                            //{"_address", "Deoghar, JH, IN"},   // TODO: devise property equal
                             { "_service", "expat" },
                             { "_tag", 301 },
                             { "_sql", false },
