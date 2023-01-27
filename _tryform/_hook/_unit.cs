@@ -509,9 +509,12 @@ namespace _unit
 			{
                 #region attribute
 
-                private Type? _type { get; set; }
-                private string? _name { get; set; }
-				private List<object>? _entities;
+                private Type? _typ { get; set; }
+                private string? _nam { get; set; }
+				private List<object>? _entitie;
+
+                public string? _name { get { return this._nam; } }
+                public List<object>? _entities { get { return this._entitie; } }
 
                 #endregion
 
@@ -526,9 +529,9 @@ namespace _unit
 				{
 					if (_type != null)
 					{
-						this._type = _type;
-						this._name = _type.Name;
-                        this._entities = new List<object>() { };
+						this._typ = _type;
+						this._nam = _type.Name;
+                        this._entitie = new List<object>() { };
                     }
 					else
                     {
@@ -546,7 +549,7 @@ namespace _unit
                 /// <returns>_type</returns>
                 public Type? _retrievetype()
 				{
-					return this._type;
+					return this._typ;
 				}
 
 				/// <summary>
@@ -555,7 +558,7 @@ namespace _unit
 				/// <returns>_name</returns>
 				public string? _retrievename()
 				{
-					return this._name;
+					return this._nam;
 				}
 
 				/// <summary>
@@ -567,11 +570,11 @@ namespace _unit
 				public bool _assignentity(object _entity)
 				{
 					bool _issuccess = false;
-					if (this._entities != null)
+					if (this._entitie != null)
 					{
 						try
 						{
-                            this._entities.Add(_entity);
+                            this._entitie.Add(_entity);
 							_issuccess = true;
 						}
 						catch (Exception _exception)
@@ -622,13 +625,20 @@ namespace _unit
 
             #region public
 
-            public string? _jsonserialize()
+            /// <summary>
+            /// serialize real json
+            /// </summary>
+            /// <param name="_writeindented">_writeindented</param>
+            /// <returns>json</returns>
+            /// <exception cref="Exception"></exception>
+            public string? _jsonreal(bool _writeindented = true)
             {
                 string? _json = null;
 
                 try
                 {
-                    _json = JsonSerializer.Serialize(this._classset); // TODO: digest _entityset
+                    JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true, WriteIndented = _writeindented };
+                    _json = JsonSerializer.Serialize<Dictionary<UInt32, _entityset>>(this._classset, _options);
                 }
                 catch (Exception _exception)
                 {
