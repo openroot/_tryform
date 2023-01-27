@@ -283,7 +283,7 @@ namespace _unit
                 }
                 Console.Write("unit loremipsum created");
 
-                Dictionary<Guid, _entityset> _classset = _unit._classcontainer._retrieveclassset();
+                Dictionary<UInt32, _entityset> _classset = _unit._classcontainer._retrieveclassset();
                 string? _jsonserialize = new _unit._classcontainerbatch()._jsonserialize();
             }
             catch (Exception _exception)

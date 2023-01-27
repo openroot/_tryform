@@ -8,26 +8,30 @@ using static _unit._unit._classcontainer;
 
 namespace _unit
 {
-	/// <summary>
-	/// _unit
-	/// </summary>
-	public class _unit
-	{
-		#region attribute
+    #region class _unit
 
-		private readonly _classconfiguration _classconfiguration;
+    /// <summary>
+    /// _unit
+    /// </summary>
+    public class _unit
+	{
+        #region attribute
+
+        private UInt32 _classidthis;
+
+        private readonly _classconfiguration _classconfiguration;
 		private TypeBuilder? _classbuilder { get; set; }
 		private Type? _class { get; set; }
 
-		#endregion
+        #endregion
 
-		#region constructor
+        #region constructor
 
-		/// <summary>
-		/// construct _unit
-		/// </summary>
-		/// <param name="_classconfiguration">_classconfiguration</param>
-		public _unit(_classconfiguration _classconfiguration)
+        /// <summary>
+        /// construct _unit
+        /// </summary>
+        /// <param name="_classconfiguration">_classconfiguration</param>
+        public _unit(_classconfiguration _classconfiguration)
 		{
 			this._classconfiguration = _classconfiguration;
 			this._class = null;
@@ -52,7 +56,9 @@ namespace _unit
                 {
                     if (this._createunit())
                     {
-                        if (_classcontainer._assigntype(this._retrievetype()))
+						this._classidthis = _unit._classidend._getidend();
+
+                        if (_classcontainer._assigntype(this._classidthis, this._retrievetype()))
 						{
 							_issuccess = true;
 						}
@@ -294,7 +300,8 @@ namespace _unit
 
 		private void _reset()
 		{
-			this._classbuilder = null;
+			this._classidthis = default(UInt32);
+            this._classbuilder = null;
 			this._class = null;
 		}
 
@@ -333,7 +340,7 @@ namespace _unit
 				if (_type != null)
 				{
 					object? _entitytemp = Activator.CreateInstance(_type);
-					if (_classcontainer._assignentity(_entitytemp))
+					if (_classcontainer._assignentity(this._classidthis, _entitytemp))
 					{
 						_entity = _entitytemp;
 					}
@@ -352,16 +359,42 @@ namespace _unit
 
         #endregion
 
-        #region _classcontainer
+        #region class _classidend
 
-        /// <summary>
-        /// _class _entity off _classcontainer
-        /// </summary>
-        public static class _classcontainer
+        public static class _classidend
+		{
+            #region attribute
+
+            private static UInt32 _idend = 0;
+
+            #endregion
+
+            #region public
+
+            /// <summary>
+            /// get _idend
+            /// </summary>
+            /// <returns>_idend</returns>
+            public static UInt32 _getidend()
+			{
+				return ++_idend;
+			}
+
+			#endregion
+		}
+
+		#endregion
+
+		#region class _classcontainer
+
+		/// <summary>
+		/// _class _entity off _classcontainer
+		/// </summary>
+		public static class _classcontainer
 		{
 			#region attribute
 
-			private static Dictionary<Guid, _entityset> _classset = new Dictionary<Guid, _entityset>() { };
+			private static Dictionary<UInt32, _entityset> _classset = new Dictionary<UInt32, _entityset>() { };
 
             #endregion
 
@@ -371,7 +404,7 @@ namespace _unit
             /// retrieve _classset
             /// </summary>
             /// <returns>classset</returns>
-            public static Dictionary<Guid, _entityset> _retrieveclassset()
+            public static Dictionary<UInt32, _entityset> _retrieveclassset()
             {
                 return _classset;
             }
@@ -382,7 +415,7 @@ namespace _unit
             /// <param name="_type"></param>
             /// <returns>bool</returns>
             /// <exception cref="Exception"></exception>
-            public static bool _assigntype(Type? _type)
+            public static bool _assigntype(UInt32 _classidthis, Type? _type)
 			{
 				bool _issuccess = false;
 
@@ -390,12 +423,10 @@ namespace _unit
                 {
                     try
                     {
-                        Guid _guid = _type.GUID;
-                        // assign new _guid off _type , if not already assign double-check
-                        if (!_classset.ContainsKey(_guid))
+                        if (!_classset.ContainsKey(_classidthis))
                         {
                             _entityset _entityset = new _entityset(_type);
-                            _classset.Add(_guid, _entityset);
+                            _classset.Add(_classidthis, _entityset);
                         }
                         _issuccess = true;
                     }
@@ -412,13 +443,14 @@ namespace _unit
                 return _issuccess;
 			}
 
-			/// <summary>
-			/// assign _entity
-			/// </summary>
-			/// <param name="_entity"></param>
-			/// <returns>bool</returns>
-			/// <exception cref="Exception"></exception>
-			public static bool _assignentity(object? _entity)
+            /// <summary>
+            /// assign _entity
+            /// </summary>
+            /// <param name="_classidthis">_classidthis</param>
+            /// <param name="_entity">_entity</param>
+            /// <returns>bool</returns>
+            /// <exception cref="Exception"></exception>
+            public static bool _assignentity(UInt32 _classidthis, object? _entity)
 			{
 				bool _issuccess = false;
 
@@ -427,18 +459,15 @@ namespace _unit
 					try
 					{
 						Type _type = _entity.GetType();
-                        Guid _guid = _type.GUID;
-						// assign new _guid off _entity , if not already assign double-check
-						if (!_classset.ContainsKey(_guid))
+						if (!_classset.ContainsKey(_classidthis))
 						{
 							_entityset _entityset = new _entityset(_type);
 							_entityset._assignentity(_entity);
-							_classset.Add(_guid, _entityset);
+							_classset.Add(_classidthis, _entityset);
 						}
-						// assign _enity _guid
 						else
 						{
-							_classset[_guid]._assignentity(_entity);
+							_classset[_classidthis]._assignentity(_entity);
 						}
 						_issuccess = true;
 					}
@@ -455,7 +484,23 @@ namespace _unit
 				return _issuccess;
 			}
 
+            /// <summary>
+            /// fetch _classid by _classname
+            /// </summary>
+            /// <param name="_classname">_classname</param>
+            /// <returns>_classid</returns>
+            public static UInt32? _fetchclassidbyname(string _classname)
+			{
+				UInt32? _classid = null;
+
+				// TODO: fetch _classid from _unit._classcontainer._retrieveclassset().Values.Where<_classcontainer._entityset>();
+
+                return _classid;
+			}
+
             #endregion
+
+            #region class _entityset
 
             /// <summary>
             /// _entity off _entityset
@@ -464,47 +509,36 @@ namespace _unit
 			{
                 #region attribute
 
-                private Guid? _guid { get; set; }
                 private Type? _type { get; set; }
                 private string? _name { get; set; }
 				private List<object>? _entities;
 
-				#endregion
+                #endregion
 
-				#region constructor
+                #region constructor
 
-				/// <summary>
-				/// _entityset
-				/// </summary>
-				public _entityset(Type? _type)
+                /// <summary>
+                /// _entityset
+                /// </summary>
+                /// <param name="_type">_type</param>
+                /// <exception cref="Exception"></exception>
+                public _entityset(Type? _type)
 				{
 					if (_type != null)
 					{
-						this._guid = _type.GUID;
 						this._type = _type;
 						this._name = _type.Name;
-					}
+                        this._entities = new List<object>() { };
+                    }
 					else
                     {
-                        this._guid = null;
-                        this._type = null;
-                        this._name = null;
+						throw new Exception("Provided _type is null.");
                     }
-                    this._entities = new List<object>() { };
                 }
 
 				#endregion
 
 				#region public
-
-				/// <summary>
-				/// retrieve _guid
-				/// </summary>
-				/// <returns>_guid</returns>
-				public Guid? _retrieveguid()
-				{
-					return this._guid;
-				}
 
                 /// <summary>
                 /// retrieve _type
@@ -537,10 +571,7 @@ namespace _unit
 					{
 						try
 						{
-							Type _type = _entity.GetType();
-                            this._guid = this._guid ?? _type.GUID;
-							this._name = this._name ?? _type.Name;
-							this._entities.Add(_entity);
+                            this._entities.Add(_entity);
 							_issuccess = true;
 						}
 						catch (Exception _exception)
@@ -553,68 +584,74 @@ namespace _unit
 
 				#endregion
             }
-        }
-
-		#endregion
-
-		#region _classcontainerbatch
-
-		/// <summary>
-		/// _classcontainerbatch
-		/// </summary>
-		public class _classcontainerbatch
-		{
-			#region attribute
-
-			private Dictionary<Guid, _entityset> _classset = new Dictionary<Guid, _entityset>() { };
-
-			#endregion
-
-			#region constructor
-
-			public _classcontainerbatch()
-			{
-				this._classset = _classcontainer._retrieveclassset();
-			}
-			public _classcontainerbatch(Dictionary<Guid, _entityset> _classset)
-			{
-				this._classset = _classset;
-			}
-			public _classcontainerbatch(Guid _guid, _entityset _entityset)
-			{
-				this._classset.Add(_guid, _entityset);
-			}
-
-			#endregion
-
-			#region public
-
-			public string? _jsonserialize()
-			{
-				string? _json = null;
-
-				try
-				{
-					_json = JsonSerializer.Serialize(this._classset); // TODO: digest _entityset
-				}
-				catch (Exception _exception)
-				{
-					throw new Exception("json serialize inevitable.", _exception);
-				}
-
-                return _json;
-			}
 
 			#endregion
 		}
 
         #endregion
+
+        #region class _classcontainerbatch
+
+        /// <summary>
+        /// _classcontainerbatch
+        /// </summary>
+        public class _classcontainerbatch
+        {
+            #region attribute
+
+            private Dictionary<UInt32, _entityset> _classset = new Dictionary<UInt32, _entityset>() { };
+
+            #endregion
+
+            #region constructor
+
+            public _classcontainerbatch()
+            {
+                this._classset = _classcontainer._retrieveclassset();
+            }
+            public _classcontainerbatch(Dictionary<UInt32, _entityset> _classset)
+            {
+                this._classset = _classset;
+            }
+            public _classcontainerbatch(UInt32 _classid, _entityset _entityset)
+            {
+                this._classset.Add(_classid, _entityset);
+            }
+
+            #endregion
+
+            #region public
+
+            public string? _jsonserialize()
+            {
+                string? _json = null;
+
+                try
+                {
+                    _json = JsonSerializer.Serialize(this._classset); // TODO: digest _entityset
+                }
+                catch (Exception _exception)
+                {
+                    throw new Exception("json serialize inevitable.", _exception);
+                }
+
+                return _json;
+            }
+
+            #endregion
+        }
+
+        #endregion
     }
 
-	/// <summary>
-	/// _class off configuration
-	/// </summary>
-	public class _classconfiguration
+    #endregion
+
+    #region class _classconfiguration
+
+    /// <summary>
+    /// _class off configuration
+    /// </summary>
+    public class _classconfiguration
 	{
 		#region attribute
 
@@ -673,7 +710,7 @@ namespace _unit
 
         #endregion
 
-        #region _propertyconfiguration
+        #region class _propertyconfiguration
 
         /// <summary>
         /// _property off configuration
@@ -825,9 +862,13 @@ namespace _unit
 		#endregion
 	}
 
-	/// <summary>
-	/// _unit off _instance
-	/// </summary>
+    #endregion
+
+    #region class _instance
+
+    /// <summary>
+    /// _unit off _instance
+    /// </summary>
     public class _instance
     {
         #region attribute
@@ -1010,4 +1051,6 @@ namespace _unit
 
 		#endregion
 	}
+
+	#endregion
 }
