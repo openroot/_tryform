@@ -8,38 +8,38 @@ using static _unit._unit._classcontainer;
 
 namespace _unit
 {
-    #region class _unit
+	#region class _unit
 
-    /// <summary>
-    /// _unit
-    /// </summary>
-    public class _unit
+	/// <summary>
+	/// _unit
+	/// </summary>
+	public class _unit
 	{
-        #region attribute
+		#region attribute
 
-        private UInt32 _classidthis;
+		private UInt32 _classidthis;
 
-        private readonly _classconfiguration _classconfiguration;
+		private readonly _classconfiguration _classconfiguration;
 		private TypeBuilder? _classbuilder { get; set; }
 		private Type? _class { get; set; }
 
-        #endregion
+		#endregion
 
-        #region constructor
+		#region constructor
 
-        /// <summary>
-        /// construct _unit
-        /// </summary>
-        /// <param name="_classconfiguration">_classconfiguration</param>
-        public _unit(_classconfiguration _classconfiguration)
+		/// <summary>
+		/// construct _unit
+		/// </summary>
+		/// <param name="_classconfiguration">_classconfiguration</param>
+		public _unit(_classconfiguration _classconfiguration)
 		{
 			this._classconfiguration = _classconfiguration;
 			this._class = null;
 
 			if (!this._process())
 			{
-                throw new Exception("_unit is not created.");
-            }
+				throw new Exception("_unit is not created.");
+			}
 		}
 
 		#endregion
@@ -50,32 +50,32 @@ namespace _unit
 		{
 			bool _issuccess = false;
 
-            if (this._rectifyclassconfiguration())
-            {
-                if (this._structure())
-                {
-                    if (this._createunit())
-                    {
+			if (this._rectifyclassconfiguration())
+			{
+				if (this._structure())
+				{
+					if (this._createunit())
+					{
 						this._classidthis = _unit._classidend._getidend();
 
-                        if (_classcontainer._assigntype(this._classidthis, this._retrievetype()))
+						if (_classcontainer._assigntype(this._classidthis, this._retrievetype()))
 						{
 							_issuccess = true;
 						}
 						else
-                        {
-                            this._reset();
-                            throw new Exception("_unit is not created.");
-                        }
-                    }
-                }
-            }
-            else
-            {
-                throw new Exception("Provided _classconfiguration is invalid.");
-            }
+						{
+							this._reset();
+							throw new Exception("_unit is not created.");
+						}
+					}
+				}
+			}
+			else
+			{
+				throw new Exception("Provided _classconfiguration is invalid.");
+			}
 
-            return _issuccess;
+			return _issuccess;
 		}
 
 		private bool _rectifyclassconfiguration()
@@ -138,7 +138,7 @@ namespace _unit
 					// _unit off properties
 					for (int _index = 0; _index < this._classconfiguration._retrieveproperties().Count; _index++)
 					{
-                        _issuccess = this._structureunitproperty(_index);
+						_issuccess = this._structureunitproperty(_index);
 						if (!_issuccess)
 						{
 							break;
@@ -211,11 +211,11 @@ namespace _unit
 			bool _issuccess = false;
 			if (this._classbuilder != null)
 			{
-                try
+				try
 				{
 					_classconfiguration._propertyconfiguration _property = this._classconfiguration._retrieveproperties()[_index];
 
-                    Type? _type = _property._retrievetype();
+					Type? _type = _property._retrievetype();
 					string? _name = _property._retrievename();
 					if (_type != null)
 					{
@@ -264,17 +264,17 @@ namespace _unit
 							_propertybuilder.SetSetMethod(_methodbuilderset);
 
 							_issuccess = true;
-                        }
-                        else
-                        {
-                            throw new Exception("Provided _name is null.");
-                        }
-                    }
+						}
+						else
+						{
+							throw new Exception("Provided _name is null.");
+						}
+					}
 					else
 					{
 						throw new Exception("Provided _type is null.");
 					}
-                }
+				}
 				catch (Exception _exception)
 				{
 					throw new Exception(_exception.Message);
@@ -301,28 +301,28 @@ namespace _unit
 		private void _reset()
 		{
 			this._classidthis = default(UInt32);
-            this._classbuilder = null;
+			this._classbuilder = null;
 			this._class = null;
 		}
 
-        #endregion
+		#endregion
 
-        #region public
+		#region public
 
-        /// <summary>
-        /// retrieve _classconfiguration
-        /// </summary>
-        /// <returns>_classconfiguration</returns>
-        public _classconfiguration _retrieveclassconfiguration()
-        {
-            return this._classconfiguration;
-        }
+		/// <summary>
+		/// retrieve _classconfiguration
+		/// </summary>
+		/// <returns>_classconfiguration</returns>
+		public _classconfiguration _retrieveclassconfiguration()
+		{
+			return this._classconfiguration;
+		}
 
-        /// <summary>
-        /// retrieve _type
-        /// </summary>
-        /// <returns>_type</returns>
-        public Type? _retrievetype()
+		/// <summary>
+		/// retrieve _type
+		/// </summary>
+		/// <returns>_type</returns>
+		public Type? _retrievetype()
 		{
 			return this._class;
 		}
@@ -348,7 +348,7 @@ namespace _unit
 				else
 				{
 					throw new Exception("Could not create _class _entity. Provided _type is null.");
-                }
+				}
 			}
 			catch (Exception _exception)
 			{
@@ -357,25 +357,25 @@ namespace _unit
 			return _entity;
 		}
 
-        #endregion
+		#endregion
 
-        #region class _classidend
+		#region class _classidend
 
-        public static class _classidend
+		public static class _classidend
 		{
-            #region attribute
+			#region attribute
 
-            private static UInt32 _idend = 0;
+			private static UInt32 _idend = 0;
 
-            #endregion
+			#endregion
 
-            #region public
+			#region public
 
-            /// <summary>
-            /// get _idend
-            /// </summary>
-            /// <returns>_idend</returns>
-            public static UInt32 _getidend()
+			/// <summary>
+			/// get _idend
+			/// </summary>
+			/// <returns>_idend</returns>
+			public static UInt32 _getidend()
 			{
 				return ++_idend;
 			}
@@ -867,6 +867,37 @@ namespace _unit
 			}
 
 			#endregion
+		}
+
+        #endregion
+    }
+
+    #endregion
+
+    #region class _classconfigurationsjson
+
+    public class _classconfigurationsjson
+    {
+        #region attribute
+
+        private readonly string _classconfigurationsjsonreal;
+
+        #endregion
+
+        #region constructor
+
+        public _classconfigurationsjson(string _classconfigurationsjsonreal)
+		{
+			this._classconfigurationsjsonreal = _classconfigurationsjsonreal;
+		}
+
+        #endregion
+
+        #region private
+
+        public void _process()
+		{
+
 		}
 
 		#endregion
