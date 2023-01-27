@@ -218,7 +218,7 @@ namespace _unit
                     _classconfiguration _loremipsumseparateclassconfig = new _classconfiguration(
                         "_loremipsumseparate",
                         new List<_classconfiguration._propertyconfiguration>() {
-                            new _classconfiguration._propertyconfiguration(_loremipsum._retrievetype(), "_loremipsum"),
+                            new _classconfiguration._propertyconfiguration(_loremipsum._retrievetype(), "_loremipsum"), // TODO: pass Type user-defined as string
                             new _classconfiguration._propertyconfiguration("String", "_sector"),
                             new _classconfiguration._propertyconfiguration("Int32", "_year"),
                             new _classconfiguration._propertyconfiguration("Boolean", "_isactive")
@@ -229,7 +229,7 @@ namespace _unit
                     if (_foobar101 != null)
                     {
                         _foobar101._assignproperties(new Dictionary<string, object?>() {
-                            {"_loremipsum", _foobar._retrieveentity()},
+                            {"_loremipsum", _foobar._retrieveentity()}, // TODO: pass Entity name as string
                             {"_sector", "Matter Design"},
                             {"_year", 2003},
                             {"_isactive", false}
@@ -259,7 +259,7 @@ namespace _unit
                             new _classconfiguration._propertyconfiguration("Boolean", "_cloud"),
                             new _classconfiguration._propertyconfiguration("Boolean", "_api")
                         },
-                        _loremipsum._retrievetype()
+                        _loremipsum._retrievetype() // TODO: pass Type user-defined as string
                     );
                     _unit _loremipsumchild = new _unit(_loremipsumchildclassconfig);
                     _instance _foobar1001 = new _instance(_loremipsumchild);
