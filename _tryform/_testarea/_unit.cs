@@ -218,7 +218,6 @@ namespace _unit
                     _classconfiguration _loremipsumseparateclassconfig = new _classconfiguration(
                         "_loremipsumseparate",
                         new List<_classconfiguration._propertyconfiguration>() {
-                            //new _classconfiguration._propertyconfiguration(_foobar._retrievetype(), "_loremipsum"),
                             new _classconfiguration._propertyconfiguration(_loremipsum._retrievetype(), "_loremipsum"),
                             new _classconfiguration._propertyconfiguration("String", "_sector"),
                             new _classconfiguration._propertyconfiguration("Int32", "_year"),
