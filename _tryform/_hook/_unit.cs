@@ -6,6 +6,9 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 
 using static _unit._unit._classcontainer;
+using static _unit._classconfiguration._propertyconfiguration;
+using System.Xml.Linq;
+using System.Runtime.CompilerServices;
 
 namespace _unit
 {
@@ -883,6 +886,9 @@ namespace _unit
 
 		private List<_type>? _types;
         private string? _typesreal;
+		private List<_typeform> _typeforms = new List<_typeform>();
+
+        public enum _typedefaultoptions : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
 
         #endregion
 
@@ -923,8 +929,7 @@ namespace _unit
 
             if (_types != null)
             {
-                // TODO: cheack naming conventions and inevitable type
-                _issuccess = true;
+                _issuccess = this._feedtypeforms();
             }
             else
             {
@@ -933,6 +938,33 @@ namespace _unit
 
             return _issuccess;
         }
+
+		private bool _feedtypeforms()
+		{
+			bool _issuccess = false;
+
+			if (this._types != null)
+			{
+				try
+				{
+					foreach (_type _type in this._types)
+					{
+						this._typeforms.Add(new _typeform(_type));
+					}
+					_issuccess = true;
+				}
+				catch (Exception _exception)
+				{
+					throw new Exception(_exception.Message);
+				}
+			}
+			else
+			{
+				throw new Exception("_types are null.");
+			}
+
+            return _issuccess;
+		}
 
         private bool _isformjsonreal(string _jsonreal)
 		{
@@ -957,6 +989,11 @@ namespace _unit
         #endregion
 
         #region public
+
+		public List<_typeform> _retrievetypeforms()
+		{
+			return this._typeforms;
+		}
 
         public bool _checktypesreal(string _typesreal)
 		{
@@ -1021,7 +1058,71 @@ namespace _unit
 
 		#endregion
 
-		#region class _typeconfiguration
+		#region class _typeform
+
+		public class _typeform
+		{
+            private Type? _type;
+
+			private UInt32? _hook;
+            private string? _name;
+            private Dictionary<string, string>? _properties;
+            private UInt32? _typeparent;
+			            
+			public _typeform(_type _type)
+			{
+				if (!this._process(_type))
+				{
+					throw new Exception("Provided _type is not processed.");
+				}
+			}
+
+            public _typeform(Type _type, string _name)
+            {
+				if (_type == null)
+				{
+					throw new Exception("Provided _type is null.");
+				}
+				else if (string.IsNullOrEmpty(_name))
+				{
+					throw new Exception("Provided _name is null or empty.");
+				}
+				else
+				{
+					this._type = _type;
+					this._name = _name;
+				}
+            }
+
+            public _typeform(string _type, string _name)
+            {
+                //this._type = _fetchtypedefault(_type);
+                this._name = _name;
+            }
+
+            public _typeform(_classconfigurations._typedefaultoptions _type, string _name)
+            {
+                //this._type = _fetchtypedefaultbyenum(_type);
+                this._name = _name;
+            }
+
+			private bool _process(_type _type)
+			{
+				bool _issuccess = false;
+
+				if (_type != null)
+				{
+					// TODO: Cross check availability or repeat against _classcontainer
+					this._hook = _type._hook;
+					this._name = _type._name;
+					this._typeparent = _type._typeparent;
+
+                    this._properties = _type._properties;
+                }
+
+				return _issuccess;
+			}
+        }
 
 		#endregion
 	}
