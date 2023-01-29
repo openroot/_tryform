@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using Label = System.Reflection.Emit.Label;
 using System.Runtime.InteropServices;
@@ -880,25 +881,143 @@ namespace _unit
     {
         #region attribute
 
-        private readonly string _classconfigurationsjsonreal;
+		private List<_type>? _types;
+        private string? _typesreal;
 
         #endregion
 
         #region constructor
 
-        public _classconfigurationsjson(string _classconfigurationsjsonreal)
+        public _classconfigurationsjson([Optional]string _typesreal)
 		{
-			this._classconfigurationsjsonreal = _classconfigurationsjsonreal;
+			if (this._isformjsonreal(_typesreal))
+			{
+				List<_type>? _typesareal = _classconfigurationsjson._jsonareal(_typesreal);
+                if (this._process(_typesareal))
+				{
+					this._types = _typesareal;
+					this._typesreal = _typesreal;
+                }
+            }
+		}
+
+		public _classconfigurationsjson([Optional]List<_type> _types)
+		{
+			if (_types != null)
+			{
+				if (this._process(_types))
+				{
+					this._types = _types;
+					this._typesreal = _classconfigurationsjson._jsonreal(_types);
+                }
+            }
 		}
 
         #endregion
 
         #region private
 
-        public void _process()
-		{
+        private bool _process(List<_type>? _types)
+        {
+            bool _issuccess = false;
 
+            if (_types != null)
+            {
+                // TODO: cheack naming conventions and inevitable type
+                _issuccess = true;
+            }
+            else
+            {
+                throw new Exception("_types referred is null.");
+            }
+
+            return _issuccess;
+        }
+
+        private bool _isformjsonreal(string _jsonreal)
+		{
+			bool _isform = false;
+
+			List<_type>? _jsonareal = _classconfigurationsjson._jsonareal(_jsonreal);
+			if (_jsonareal != null)
+			{
+				string? _triedjsonreal = _classconfigurationsjson._jsonreal(_jsonareal);
+				if (_triedjsonreal != null)
+				{
+					if (_jsonreal.Equals(_triedjsonreal))
+					{
+						_isform = true;
+					}
+				}
+			}
+
+			return _isform;
 		}
+
+        #endregion
+
+        #region public
+
+        public bool _checktypesreal(string _typesreal)
+		{
+			bool _isform = false;
+
+			_isform = this._isformjsonreal(_typesreal);
+
+            return _isform;
+        }
+
+		public static string? _jsonreal(List<_type> _types)
+		{
+			string? _jsonreal = null;
+            JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true };
+			try
+			{
+                _jsonreal = JsonSerializer.Serialize<List<_type>>(_types, _options);
+			}
+			catch (Exception _exception)
+			{
+				throw new Exception(_exception.Message);
+			}
+			return _jsonreal;
+        }
+
+		public static List<_type>? _jsonareal(string _types)
+		{
+			List<_type>? _jsonareal = null;
+            JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true };
+			try
+			{
+                _jsonareal = JsonSerializer.Deserialize<List<_type>>(_types, _options)!;
+            }
+			catch (Exception _exception)
+			{
+                throw new Exception(_exception.Message);
+            }
+			return _jsonareal;
+        }
+
+		public static List<_type> _fetchsampletypes()
+		{
+            List<_type> _sampletypes = new List<_type>() {
+                new _type() { _hook = 1, _name = "_xy", _properties = new Dictionary<string, string>() { { "_id", "Int32" }, { "_fullname", "String" }, { "_isdead", "Boolean" } } },
+                new _type() { _hook = 2, _name = "_pq", _properties = new Dictionary<string, string>() { { "_xy", "1" }, { "_tag", "String" } } },
+                new _type() { _hook = 3, _name = "_st", _properties = new Dictionary<string, string>() { { "_service", "String" }, { "_api", "Boolean" } }, _typeparent = 2 }
+            };
+			return _sampletypes;
+        }
+
+        #endregion
+
+        #region class _type
+
+        public class _type
+		{
+			public UInt32? _hook;
+			public string? _name;
+			public Dictionary<string, string>? _properties;
+			public UInt32? _typeparent;
+        }
 
 		#endregion
 	}

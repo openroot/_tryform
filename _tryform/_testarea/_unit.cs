@@ -178,8 +178,10 @@ namespace _unit
         
         public void _createunit_loremipsum()
         {
-            string _classconfigurationsjsonreal = "{\"_type\":[{\"_hook\":\"1\",\"_name\":\"_loremipsum\",\"_properties\":{\"_id\":\"Int32\",\"_fullname\":\"String\",\"_address\":\"String\",\"_isdead\":\"Boolean\",\"_foo\":\"String\"}},{\"_hook\":\"2\",\"_name\":\"_loremipsumseparate\",\"_properties\":{\"_loremipsum\":1,\"_id\":\"Int32\",\"_fullname\":\"String\",\"_address\":\"String\",\"_isdead\":\"Boolean\",\"_foo\":\"String\"}},{\"_hook\":\"3\",\"_name\":\"_loremipsumchild\",\"_properties\":{\"_service\":\"String\",\"_tag\":\"Int32\",\"_sql\":\"Boolean\",\"_cloud\":\"Boolean\",\"_api\":\"Boolean\"},\"_typeparent\":1}]}";
-            var _sample = new _classconfigurationsjson(_classconfigurationsjsonreal);
+            List<_classconfigurationsjson._type> _sampletypesareal = _classconfigurationsjson._fetchsampletypes();
+            var _sampletypesreal = _classconfigurationsjson._jsonreal(_sampletypesareal);
+            var _sampletypesarealreturned = _classconfigurationsjson._jsonareal(_sampletypesreal ?? string.Empty);
+            var _sampleclassconfig = new _classconfigurationsjson(_sampletypesreal ?? string.Empty);
 
             try
             {
