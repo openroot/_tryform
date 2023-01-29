@@ -22,13 +22,12 @@ namespace _unit
 	{
 		#region attribute
 
-		public _typeconfigurations _typeconfigurations;
-
-		private TypeBuilder? _tempclassbuilder { get; set; }
-		private Type? _tempclass { get; set; }
+		public _typeconfigurations? _typeconfigurations;
+		private TypeBuilder? _temptypebuilder { get; set; }
+		private Type? _temptype { get; set; }
 
         private ulong _typehook;
-        private readonly _classconfiguration _classconfiguration;
+        private readonly _classconfiguration? _classconfiguration;
 
         #endregion
 
@@ -41,7 +40,7 @@ namespace _unit
         public _unit(_classconfiguration _classconfiguration)
 		{
 			this._classconfiguration = _classconfiguration;
-			this._tempclass = null;
+			this._temptype = null;
 
 			if (!this._process())
 			{
@@ -52,11 +51,10 @@ namespace _unit
         public _unit(_typeconfigurations _typeconfigurations)
         {
             this._typeconfigurations = _typeconfigurations;
-            this._tempclass = null;
 
             if (!this._process())
             {
-                throw new Exception("_unit is not created.");
+                throw new Exception("_unit is not processed.");
             }
         }
 
@@ -68,29 +66,43 @@ namespace _unit
 		{
 			bool _issuccess = false;
 
-			if (this._rectifyclassconfiguration())
+			if (this._typeconfigurations != null)
 			{
-				if (this._structure())
+				List<_typeform> _typeforms = this._typeconfigurations._retrievetypeforms();
+				if (_typeforms != null)
 				{
-					if (this._createunit())
+					foreach (_typeform _typeform in _typeforms)
 					{
-						this._typehook = _unit._classidend._getidend();
+						this._temptypebuilder = null;
+						this._temptype = null;
 
-						if (_classcontainer._assigntype(this._typehook, this._retrievetype()))
+                    }
+					if (this._structure())
+					{
+						if (this._createtype())
 						{
-							_issuccess = true;
-						}
-						else
-						{
-							this._reset();
-							throw new Exception("_unit is not created.");
+							this._typehook = _unit._classidend._getidend();
+
+							if (_classcontainer._assigntype(this._typehook, this._retrievetype()))
+							{
+								_issuccess = true;
+							}
+							else
+							{
+								this._reset();
+								throw new Exception("_unit is not created.");
+							}
 						}
 					}
-				}
-			}
+                }
+                else
+                {
+                    throw new Exception("Provided _typeforms is null.");
+                }
+            }
 			else
 			{
-				throw new Exception("Provided _classconfiguration is invalid.");
+				throw new Exception("Provided _typeconfigurations is null.");
 			}
 
 			return _issuccess;
@@ -148,15 +160,15 @@ namespace _unit
 		{
 			bool _issuccess = true;
 			// _unit off class
-			if (this._structureunitclass())
+			if (this._structuretype())
 			{
 				// _unit off constructor
-				if (this._structureunitconstructor())
+				if (this._structuretypeconstructor())
 				{
 					// _unit off properties
 					for (int _index = 0; _index < this._classconfiguration._retrieveproperties().Count; _index++)
 					{
-						_issuccess = this._structureunitproperty(_index);
+						_issuccess = this._structuretypeproperty(_index);
 						if (!_issuccess)
 						{
 							break;
@@ -167,7 +179,7 @@ namespace _unit
 			return _issuccess;
 		}
 
-		private bool _structureunitclass()
+		private bool _structuretype()
 		{
 			bool _issuccess = false;
 			try
@@ -182,7 +194,7 @@ namespace _unit
 				ModuleBuilder _modulebuilder = _assemblybuilder.DefineDynamicModule(this._classconfiguration._retrievename());
 
 				// _class , structure
-				this._tempclassbuilder = _modulebuilder.DefineType(_assemblyname.FullName,
+				this._temptypebuilder = _modulebuilder.DefineType(_assemblyname.FullName,
 					TypeAttributes.Public |
 					TypeAttributes.Class |
 					TypeAttributes.AutoClass |
@@ -201,15 +213,15 @@ namespace _unit
 			return _issuccess;
 		}
 
-		private bool _structureunitconstructor()
+		private bool _structuretypeconstructor()
 		{
 			bool _issuccess = false;
-			if (this._tempclassbuilder != null)
+			if (this._temptypebuilder != null)
 			{
 				try
 				{
 					// _class constructor , structure
-					this._tempclassbuilder?.DefineDefaultConstructor(
+					this._temptypebuilder?.DefineDefaultConstructor(
 						MethodAttributes.Public |
 						MethodAttributes.SpecialName |
 						MethodAttributes.RTSpecialName
@@ -224,10 +236,10 @@ namespace _unit
 			return _issuccess;
 		}
 
-		private bool _structureunitproperty(int _index)
+		private bool _structuretypeproperty(int _index)
 		{
 			bool _issuccess = false;
-			if (this._tempclassbuilder != null)
+			if (this._temptypebuilder != null)
 			{
 				try
 				{
@@ -240,10 +252,10 @@ namespace _unit
 						if (_name != null)
 						{
 							// _property _field , structure
-							FieldBuilder _fieldbuilder = this._tempclassbuilder.DefineField("_field" + _name, _type, FieldAttributes.Private);
+							FieldBuilder _fieldbuilder = this._temptypebuilder.DefineField("_field" + _name, _type, FieldAttributes.Private);
 
 							// _property _method , structure , get
-							MethodBuilder _methodbuilderget = this._tempclassbuilder.DefineMethod("_get" + _name,
+							MethodBuilder _methodbuilderget = this._temptypebuilder.DefineMethod("_get" + _name,
 								MethodAttributes.Public |
 								MethodAttributes.SpecialName |
 								MethodAttributes.HideBySig,
@@ -257,7 +269,7 @@ namespace _unit
 							_immediatelanguagegeneratorget.Emit(OpCodes.Ret);
 
 							// _property _method , structure , set
-							MethodBuilder _methodbuilderset = this._tempclassbuilder.DefineMethod("_set" + _name,
+							MethodBuilder _methodbuilderset = this._temptypebuilder.DefineMethod("_set" + _name,
 								MethodAttributes.Public |
 								MethodAttributes.SpecialName |
 								MethodAttributes.HideBySig,
@@ -277,7 +289,7 @@ namespace _unit
 							_immediatelanguagegeneratorset.Emit(OpCodes.Ret);
 
 							// _property , structure , off get set
-							PropertyBuilder _propertybuilder = this._tempclassbuilder.DefineProperty(_name, PropertyAttributes.HasDefault, _type, null);
+							PropertyBuilder _propertybuilder = this._temptypebuilder.DefineProperty(_name, PropertyAttributes.HasDefault, _type, null);
 							_propertybuilder.SetGetMethod(_methodbuilderget);
 							_propertybuilder.SetSetMethod(_methodbuilderset);
 
@@ -301,12 +313,12 @@ namespace _unit
 			return _issuccess;
 		}
 
-		private bool _createunit()
+		private bool _createtype()
 		{
 			bool _issuccess = false;
 			try
 			{
-				this._tempclass = this._tempclassbuilder?.CreateType() ?? typeof(System.Nullable);
+				this._temptype = this._temptypebuilder?.CreateType() ?? typeof(System.Nullable);
 				_issuccess = true;
 			}
 			catch (Exception _exception)
@@ -319,8 +331,8 @@ namespace _unit
 		private void _reset()
 		{
 			this._typehook = default(UInt32);
-			this._tempclassbuilder = null;
-			this._tempclass = null;
+			this._temptypebuilder = null;
+			this._temptype = null;
 		}
 
 		#endregion
@@ -342,7 +354,7 @@ namespace _unit
 		/// <returns>_type</returns>
 		public Type? _retrievetype()
 		{
-			return this._tempclass;
+			return this._temptype;
 		}
 
 		/// <summary>
