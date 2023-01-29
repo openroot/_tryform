@@ -5,11 +5,11 @@ using Label = System.Reflection.Emit.Label;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
+using static _unit._typeconfigurations;
 using static _unit._unit._classcontainer;
 using static _unit._classconfiguration._propertyconfiguration;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
-using static _unit._typeconfigurations;
 
 namespace _unit
 {
@@ -22,24 +22,26 @@ namespace _unit
 	{
 		#region attribute
 
-		private ulong _typehook;
+		public _typeconfigurations _typeconfigurations;
 
-		private readonly _classconfiguration _classconfiguration;
-		private TypeBuilder? _classbuilder { get; set; }
-		private Type? _class { get; set; }
+		private TypeBuilder? _tempclassbuilder { get; set; }
+		private Type? _tempclass { get; set; }
 
-		#endregion
+        private ulong _typehook;
+        private readonly _classconfiguration _classconfiguration;
 
-		#region constructor
+        #endregion
 
-		/// <summary>
-		/// construct _unit
-		/// </summary>
-		/// <param name="_classconfiguration">_classconfiguration</param>
-		public _unit(_classconfiguration _classconfiguration)
+        #region constructor
+
+        /// <summary>
+        /// construct _unit
+        /// </summary>
+        /// <param name="_classconfiguration">_classconfiguration</param>
+        public _unit(_classconfiguration _classconfiguration)
 		{
 			this._classconfiguration = _classconfiguration;
-			this._class = null;
+			this._tempclass = null;
 
 			if (!this._process())
 			{
@@ -47,11 +49,22 @@ namespace _unit
 			}
 		}
 
-		#endregion
+        public _unit(_typeconfigurations _typeconfigurations)
+        {
+            this._typeconfigurations = _typeconfigurations;
+            this._tempclass = null;
 
-		#region private
+            if (!this._process())
+            {
+                throw new Exception("_unit is not created.");
+            }
+        }
 
-		private bool _process()
+        #endregion
+
+        #region private
+
+        private bool _process()
 		{
 			bool _issuccess = false;
 
@@ -169,7 +182,7 @@ namespace _unit
 				ModuleBuilder _modulebuilder = _assemblybuilder.DefineDynamicModule(this._classconfiguration._retrievename());
 
 				// _class , structure
-				this._classbuilder = _modulebuilder.DefineType(_assemblyname.FullName,
+				this._tempclassbuilder = _modulebuilder.DefineType(_assemblyname.FullName,
 					TypeAttributes.Public |
 					TypeAttributes.Class |
 					TypeAttributes.AutoClass |
@@ -191,12 +204,12 @@ namespace _unit
 		private bool _structureunitconstructor()
 		{
 			bool _issuccess = false;
-			if (this._classbuilder != null)
+			if (this._tempclassbuilder != null)
 			{
 				try
 				{
 					// _class constructor , structure
-					this._classbuilder?.DefineDefaultConstructor(
+					this._tempclassbuilder?.DefineDefaultConstructor(
 						MethodAttributes.Public |
 						MethodAttributes.SpecialName |
 						MethodAttributes.RTSpecialName
@@ -214,7 +227,7 @@ namespace _unit
 		private bool _structureunitproperty(int _index)
 		{
 			bool _issuccess = false;
-			if (this._classbuilder != null)
+			if (this._tempclassbuilder != null)
 			{
 				try
 				{
@@ -227,10 +240,10 @@ namespace _unit
 						if (_name != null)
 						{
 							// _property _field , structure
-							FieldBuilder _fieldbuilder = this._classbuilder.DefineField("_field" + _name, _type, FieldAttributes.Private);
+							FieldBuilder _fieldbuilder = this._tempclassbuilder.DefineField("_field" + _name, _type, FieldAttributes.Private);
 
 							// _property _method , structure , get
-							MethodBuilder _methodbuilderget = this._classbuilder.DefineMethod("_get" + _name,
+							MethodBuilder _methodbuilderget = this._tempclassbuilder.DefineMethod("_get" + _name,
 								MethodAttributes.Public |
 								MethodAttributes.SpecialName |
 								MethodAttributes.HideBySig,
@@ -244,7 +257,7 @@ namespace _unit
 							_immediatelanguagegeneratorget.Emit(OpCodes.Ret);
 
 							// _property _method , structure , set
-							MethodBuilder _methodbuilderset = this._classbuilder.DefineMethod("_set" + _name,
+							MethodBuilder _methodbuilderset = this._tempclassbuilder.DefineMethod("_set" + _name,
 								MethodAttributes.Public |
 								MethodAttributes.SpecialName |
 								MethodAttributes.HideBySig,
@@ -264,7 +277,7 @@ namespace _unit
 							_immediatelanguagegeneratorset.Emit(OpCodes.Ret);
 
 							// _property , structure , off get set
-							PropertyBuilder _propertybuilder = this._classbuilder.DefineProperty(_name, PropertyAttributes.HasDefault, _type, null);
+							PropertyBuilder _propertybuilder = this._tempclassbuilder.DefineProperty(_name, PropertyAttributes.HasDefault, _type, null);
 							_propertybuilder.SetGetMethod(_methodbuilderget);
 							_propertybuilder.SetSetMethod(_methodbuilderset);
 
@@ -293,7 +306,7 @@ namespace _unit
 			bool _issuccess = false;
 			try
 			{
-				this._class = this._classbuilder?.CreateType() ?? typeof(System.Nullable);
+				this._tempclass = this._tempclassbuilder?.CreateType() ?? typeof(System.Nullable);
 				_issuccess = true;
 			}
 			catch (Exception _exception)
@@ -306,8 +319,8 @@ namespace _unit
 		private void _reset()
 		{
 			this._typehook = default(UInt32);
-			this._classbuilder = null;
-			this._class = null;
+			this._tempclassbuilder = null;
+			this._tempclass = null;
 		}
 
 		#endregion
@@ -329,7 +342,7 @@ namespace _unit
 		/// <returns>_type</returns>
 		public Type? _retrievetype()
 		{
-			return this._class;
+			return this._tempclass;
 		}
 
 		/// <summary>
