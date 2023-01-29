@@ -674,7 +674,7 @@ namespace _unit
 
 					if (_typeform != null)
 					{
-						if (_typeform._hook == _typehook)
+						if (_typeform._typehook == _typehook)
 						{
 							try
 							{
@@ -731,7 +731,7 @@ namespace _unit
 				{
 					if (_typeform != null)
 					{
-						if (_typeform._hook == _typehook)
+						if (_typeform._typehook == _typehook)
 						{
 							this._typehook = _typehook;
 							this._typeform = _typeform;
@@ -1016,6 +1016,7 @@ namespace _unit
 
 		private List<_type>? _types;
         private string? _typesreal;
+
 		private List<_typeform> _typeforms = new List<_typeform>();
 
         public enum _typedefaulttypeoptions : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
@@ -1194,7 +1195,7 @@ namespace _unit
 		{
             public Type? _type;
 
-            public ulong _hook;
+            public ulong _typehook;
             public string? _name;
             public Dictionary<string, string>? _properties;
             public ulong _typeparent;
@@ -1207,6 +1208,7 @@ namespace _unit
 				}
 			}
 
+			/*
             public _typeform(Type _type, string _name)
             {
 				if (_type == null)
@@ -1235,6 +1237,7 @@ namespace _unit
                 //this._type = _fetchtypedefaultbyenum(_type);
                 this._name = _name;
             }
+			*/
 
 			private bool _process(_type _type)
 			{
@@ -1243,11 +1246,11 @@ namespace _unit
 				if (_type != null)
 				{
 					// TODO: Cross check availability or repeat against _classcontainer
-					this._hook = _type._hook;
+					/*this._typehook = _type._hook;
 					this._name = _type._name;
 					this._typeparent = _type._typeparent;
 					
-					this._properties = _type._properties;
+					this._properties = _type._properties;*/
 				}
 
 				return _issuccess;
