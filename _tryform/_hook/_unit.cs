@@ -9,6 +9,7 @@ using static _unit._unit._classcontainer;
 using static _unit._classconfiguration._propertyconfiguration;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
+using static _unit._typeconfigurations;
 
 namespace _unit
 {
@@ -21,7 +22,7 @@ namespace _unit
 	{
 		#region attribute
 
-		private UInt32 _classidthis;
+		private ulong _typehook;
 
 		private readonly _classconfiguration _classconfiguration;
 		private TypeBuilder? _classbuilder { get; set; }
@@ -60,9 +61,9 @@ namespace _unit
 				{
 					if (this._createunit())
 					{
-						this._classidthis = _unit._classidend._getidend();
+						this._typehook = _unit._classidend._getidend();
 
-						if (_classcontainer._assigntype(this._classidthis, this._retrievetype()))
+						if (_classcontainer._assigntype(this._typehook, this._retrievetype()))
 						{
 							_issuccess = true;
 						}
@@ -304,7 +305,7 @@ namespace _unit
 
 		private void _reset()
 		{
-			this._classidthis = default(UInt32);
+			this._typehook = default(UInt32);
 			this._classbuilder = null;
 			this._class = null;
 		}
@@ -344,7 +345,7 @@ namespace _unit
 				if (_type != null)
 				{
 					object? _entitytemp = Activator.CreateInstance(_type);
-					if (_classcontainer._assignentity(this._classidthis, _entitytemp))
+					if (_classcontainer._assignentity(this._typehook, _entitytemp))
 					{
 						_entity = _entitytemp;
 					}
@@ -398,7 +399,7 @@ namespace _unit
 		{
 			#region attribute
 
-			private static Dictionary<UInt32, _entityset> _classset = new Dictionary<UInt32, _entityset>() { };
+			private static Dictionary<ulong, _entityset> _classset = new Dictionary<ulong, _entityset>() { };
 
             #endregion
 
@@ -408,7 +409,7 @@ namespace _unit
             /// retrieve _classset
             /// </summary>
             /// <returns>classset</returns>
-            public static Dictionary<UInt32, _entityset> _retrieveclassset()
+            public static Dictionary<ulong, _entityset> _retrieveclassset()
             {
                 return _classset;
             }
@@ -419,7 +420,7 @@ namespace _unit
             /// <param name="_type"></param>
             /// <returns>bool</returns>
             /// <exception cref="Exception"></exception>
-            public static bool _assigntype(UInt32 _classidthis, Type? _type)
+            public static bool _assigntype(ulong _classidthis, Type? _type)
 			{
 				bool _issuccess = false;
 
@@ -454,7 +455,7 @@ namespace _unit
             /// <param name="_entity">_entity</param>
             /// <returns>bool</returns>
             /// <exception cref="Exception"></exception>
-            public static bool _assignentity(UInt32 _classidthis, object? _entity)
+            public static bool _assignentity(ulong _classidthis, object? _entity)
 			{
 				bool _issuccess = false;
 
@@ -493,7 +494,7 @@ namespace _unit
             /// </summary>
             /// <param name="_classname">_classname</param>
             /// <returns>_classid</returns>
-            public static UInt32? _fetchclassidbyname(string _classname)
+            public static ulong? _fetchclassidbyname(string _classname)
 			{
 				UInt32? _classid = null;
 
@@ -606,7 +607,7 @@ namespace _unit
         {
             #region attribute
 
-            private Dictionary<UInt32, _entityset> _classset = new Dictionary<UInt32, _entityset>() { };
+            private Dictionary<ulong, _entityset> _classset = new Dictionary<ulong, _entityset>() { };
 
             #endregion
 
@@ -616,11 +617,11 @@ namespace _unit
             {
                 this._classset = _classcontainer._retrieveclassset();
             }
-            public _classcontainerbatch(Dictionary<UInt32, _entityset> _classset)
+            public _classcontainerbatch(Dictionary<ulong, _entityset> _classset)
             {
                 this._classset = _classset;
             }
-            public _classcontainerbatch(UInt32 _classid, _entityset _entityset)
+            public _classcontainerbatch(ulong _classid, _entityset _entityset)
             {
                 this._classset.Add(_classid, _entityset);
             }
@@ -642,7 +643,7 @@ namespace _unit
                 try
                 {
                     JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true, WriteIndented = _writeindented };
-                    _json = JsonSerializer.Serialize<Dictionary<UInt32, _entityset>>(this._classset, _options);
+                    _json = JsonSerializer.Serialize<Dictionary<ulong, _entityset>>(this._classset, _options);
                 }
                 catch (Exception _exception)
                 {
@@ -650,6 +651,135 @@ namespace _unit
                 }
 
                 return _json;
+            }
+
+            #endregion
+        }
+
+		#endregion
+
+		#region class _datacontainer
+
+		public class _datacontainer
+		{
+            #region class _unitcontainer
+
+            public static class _unitcontainer
+			{
+				public static Dictionary<ulong, _typecontainer> _typecontainerset = new Dictionary<ulong, _typecontainer>() { };
+
+                public static bool _assigntype(ulong _typehook, _typeconfigurations._typeform _typeform)
+                {
+                    bool _issuccess = false;
+
+					if (_typeform != null)
+					{
+						if (_typeform._hook == _typehook)
+						{
+							try
+							{
+								if (!_typecontainerset.ContainsKey(_typehook))
+								{
+									_typecontainerset.Add(_typehook, new _typecontainer(_typehook, _typeform));
+								}
+								_issuccess = true;
+							}
+							catch (Exception _exception)
+							{
+								throw new Exception(_exception.Message);
+							}
+                        }
+                        else
+                        {
+                            throw new Exception("Provided _typehook and _typeform _typehook is missmatch.");
+                        }
+                    }
+					else
+					{
+						throw new Exception("Provided _typeform is null.");
+					}
+
+                    return _issuccess;
+                }
+
+				public static _typecontainer? _fetchtypecontainerbytypehook(ulong _typehook)
+				{
+					_typecontainer? _typecontainer = null;
+					try
+					{
+						_typecontainer = _typecontainerset[_typehook];
+					}
+					catch (Exception _exception)
+					{
+						throw new Exception(_exception.Message);
+					}
+                    return _typecontainer;
+                }
+            }
+
+			#endregion
+
+			#region class _typecontainer
+
+			public class _typecontainer
+			{
+				public ulong _typehook { get; set; }
+				public _typeconfigurations._typeform _typeform { get; set; }
+				public _entitycontainer _entitycontainer { get; set; }
+
+				public _typecontainer(ulong _typehook, _typeconfigurations._typeform _typeform)
+				{
+					if (_typeform != null)
+					{
+						if (_typeform._hook == _typehook)
+						{
+							this._typehook = _typehook;
+							this._typeform = _typeform;
+							this._entitycontainer = new _entitycontainer(_typehook);
+                        }
+                        else
+                        {
+                            throw new Exception("Provided _typehook and _typeform _typehook is missmatch.");
+                        }
+                    }
+					else
+					{
+						throw new Exception("Provided _typeform is null.");
+					}
+				}
+            }
+
+            #endregion
+
+            #region class _entitycontainer
+
+            public class _entitycontainer
+			{
+				public ulong _typehook { get; set; }
+				public List<object> _entityset = new List<object>() { };
+
+				public _entitycontainer(ulong _typehook)
+				{
+					this._typehook = _typehook;
+				}
+
+                public bool _assignentity(object _entity)
+                {
+                    bool _issuccess = false;
+                    if (this._entityset != null)
+                    {
+                        try
+                        {
+                            this._entityset.Add(_entity);
+                            _issuccess = true;
+                        }
+                        catch (Exception _exception)
+                        {
+                            throw new Exception("_entity not assigned.", _exception);
+                        }
+                    }
+                    return _issuccess;
+                }
             }
 
             #endregion
@@ -878,9 +1008,9 @@ namespace _unit
 
     #endregion
 
-    #region class _classconfigurations
+    #region class _typeconfigurations
 
-    public class _classconfigurations
+    public class _typeconfigurations
     {
         #region attribute
 
@@ -888,17 +1018,17 @@ namespace _unit
         private string? _typesreal;
 		private List<_typeform> _typeforms = new List<_typeform>();
 
-        public enum _typedefaultoptions : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
+        public enum _typedefaulttypeoptions : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
 
         #endregion
 
         #region constructor
 
-        public _classconfigurations([Optional]string _typesreal)
+        public _typeconfigurations([Optional]string _typesreal)
 		{
 			if (this._isformjsonreal(_typesreal))
 			{
-				List<_type>? _typesareal = _classconfigurations._jsonareal(_typesreal);
+				List<_type>? _typesareal = _typeconfigurations._jsonareal(_typesreal);
                 if (this._process(_typesareal))
 				{
 					this._types = _typesareal;
@@ -907,14 +1037,14 @@ namespace _unit
             }
 		}
 
-		public _classconfigurations([Optional]List<_type> _types)
+		public _typeconfigurations([Optional]List<_type> _types)
 		{
 			if (_types != null)
 			{
 				if (this._process(_types))
 				{
 					this._types = _types;
-					this._typesreal = _classconfigurations._jsonreal(_types);
+					this._typesreal = _typeconfigurations._jsonreal(_types);
                 }
             }
 		}
@@ -970,10 +1100,10 @@ namespace _unit
 		{
 			bool _isform = false;
 
-			List<_type>? _jsonareal = _classconfigurations._jsonareal(_jsonreal);
+			List<_type>? _jsonareal = _typeconfigurations._jsonareal(_jsonreal);
 			if (_jsonareal != null)
 			{
-				string? _triedjsonreal = _classconfigurations._jsonreal(_jsonareal);
+				string? _triedjsonreal = _typeconfigurations._jsonreal(_jsonareal);
 				if (_triedjsonreal != null)
 				{
 					if (_jsonreal.Equals(_triedjsonreal))
@@ -1050,10 +1180,10 @@ namespace _unit
 
         public class _type
 		{
-			public UInt32? _hook;
+			public ulong _hook;
 			public string? _name;
 			public Dictionary<string, string>? _properties;
-			public UInt32? _typeparent;
+			public ulong _typeparent;
         }
 
 		#endregion
@@ -1062,12 +1192,12 @@ namespace _unit
 
 		public class _typeform
 		{
-            private Type? _type;
+            public Type? _type;
 
-			private UInt32? _hook;
-            private string? _name;
-            private Dictionary<string, string>? _properties;
-            private UInt32? _typeparent;
+            public ulong _hook;
+            public string? _name;
+            public Dictionary<string, string>? _properties;
+            public ulong _typeparent;
 			            
 			public _typeform(_type _type)
 			{
@@ -1100,7 +1230,7 @@ namespace _unit
                 this._name = _name;
             }
 
-            public _typeform(_classconfigurations._typedefaultoptions _type, string _name)
+            public _typeform(_typeconfigurations._typedefaulttypeoptions _type, string _name)
             {
                 //this._type = _fetchtypedefaultbyenum(_type);
                 this._name = _name;
@@ -1116,9 +1246,9 @@ namespace _unit
 					this._hook = _type._hook;
 					this._name = _type._name;
 					this._typeparent = _type._typeparent;
-
-                    this._properties = _type._properties;
-                }
+					
+					this._properties = _type._properties;
+				}
 
 				return _issuccess;
 			}

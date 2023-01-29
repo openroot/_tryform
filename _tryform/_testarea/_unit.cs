@@ -178,10 +178,10 @@ namespace _unit
         
         public void _createunit_loremipsum()
         {
-            List<_classconfigurations._type> _sampletypesareal = _classconfigurations._fetchsampletypes();
-            var _sampletypesreal = _classconfigurations._jsonreal(_sampletypesareal);
-            var _sampletypesarealreturned = _classconfigurations._jsonareal(_sampletypesreal ?? string.Empty);
-            var _sampleclassconfig = new _classconfigurations(_sampletypesreal ?? string.Empty);
+            List<_typeconfigurations._type> _sampletypesareal = _typeconfigurations._fetchsampletypes();
+            var _sampletypesreal = _typeconfigurations._jsonreal(_sampletypesareal);
+            var _sampletypesarealreturned = _typeconfigurations._jsonareal(_sampletypesreal ?? string.Empty);
+            var _sampleclassconfig = new _typeconfigurations(_sampletypesreal ?? string.Empty);
 
             try
             {
@@ -287,7 +287,7 @@ namespace _unit
                 }
                 Console.Write("unit loremipsum created");
 
-                Dictionary<UInt32, _entityset> _classset = _unit._classcontainer._retrieveclassset();
+                Dictionary<ulong, _entityset> _classset = _unit._classcontainer._retrieveclassset();
                 string? _jsonreal = new _unit._classcontainerbatch()._jsonreal();
             }
             catch (Exception _exception)
