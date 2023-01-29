@@ -875,9 +875,9 @@ namespace _unit
 
     #endregion
 
-    #region class _classconfigurationsjson
+    #region class _classconfigurations
 
-    public class _classconfigurationsjson
+    public class _classconfigurations
     {
         #region attribute
 
@@ -888,11 +888,11 @@ namespace _unit
 
         #region constructor
 
-        public _classconfigurationsjson([Optional]string _typesreal)
+        public _classconfigurations([Optional]string _typesreal)
 		{
 			if (this._isformjsonreal(_typesreal))
 			{
-				List<_type>? _typesareal = _classconfigurationsjson._jsonareal(_typesreal);
+				List<_type>? _typesareal = _classconfigurations._jsonareal(_typesreal);
                 if (this._process(_typesareal))
 				{
 					this._types = _typesareal;
@@ -901,14 +901,14 @@ namespace _unit
             }
 		}
 
-		public _classconfigurationsjson([Optional]List<_type> _types)
+		public _classconfigurations([Optional]List<_type> _types)
 		{
 			if (_types != null)
 			{
 				if (this._process(_types))
 				{
 					this._types = _types;
-					this._typesreal = _classconfigurationsjson._jsonreal(_types);
+					this._typesreal = _classconfigurations._jsonreal(_types);
                 }
             }
 		}
@@ -938,10 +938,10 @@ namespace _unit
 		{
 			bool _isform = false;
 
-			List<_type>? _jsonareal = _classconfigurationsjson._jsonareal(_jsonreal);
+			List<_type>? _jsonareal = _classconfigurations._jsonareal(_jsonreal);
 			if (_jsonareal != null)
 			{
-				string? _triedjsonreal = _classconfigurationsjson._jsonreal(_jsonareal);
+				string? _triedjsonreal = _classconfigurations._jsonreal(_jsonareal);
 				if (_triedjsonreal != null)
 				{
 					if (_jsonreal.Equals(_triedjsonreal))
@@ -1018,6 +1018,10 @@ namespace _unit
 			public Dictionary<string, string>? _properties;
 			public UInt32? _typeparent;
         }
+
+		#endregion
+
+		#region class _typeconfiguration
 
 		#endregion
 	}

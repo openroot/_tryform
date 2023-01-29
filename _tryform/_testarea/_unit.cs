@@ -178,10 +178,10 @@ namespace _unit
         
         public void _createunit_loremipsum()
         {
-            List<_classconfigurationsjson._type> _sampletypesareal = _classconfigurationsjson._fetchsampletypes();
-            var _sampletypesreal = _classconfigurationsjson._jsonreal(_sampletypesareal);
-            var _sampletypesarealreturned = _classconfigurationsjson._jsonareal(_sampletypesreal ?? string.Empty);
-            var _sampleclassconfig = new _classconfigurationsjson(_sampletypesreal ?? string.Empty);
+            List<_classconfigurations._type> _sampletypesareal = _classconfigurations._fetchsampletypes();
+            var _sampletypesreal = _classconfigurations._jsonreal(_sampletypesareal);
+            var _sampletypesarealreturned = _classconfigurations._jsonareal(_sampletypesreal ?? string.Empty);
+            var _sampleclassconfig = new _classconfigurations(_sampletypesreal ?? string.Empty);
 
             try
             {
