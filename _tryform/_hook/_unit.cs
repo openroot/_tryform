@@ -10,6 +10,7 @@ using static _unit._unit._classcontainer;
 using static _unit._classconfiguration._propertyconfiguration;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
+using System.Linq.Expressions;
 
 namespace _unit
 {
@@ -73,11 +74,19 @@ namespace _unit
 				{
 					foreach (_typeform _typeform in _typeforms)
 					{
-						this._temptypebuilder = null;
-						this._temptype = null;
+						if (_datacontainer._unitcontainer._fetchtypecontainerbytypehook(_typeform._typehook) == null)
+						{
+							this._temptypebuilder = null;
+							this._temptype = null;
 
+
+						}
+						else
+						{
+							_issuccess = true;
+						}
                     }
-					if (this._structure())
+					/*if (this._structure())
 					{
 						if (this._createtype())
 						{
@@ -93,7 +102,7 @@ namespace _unit
 								throw new Exception("_unit is not created.");
 							}
 						}
-					}
+					}*/
                 }
                 else
                 {
@@ -156,11 +165,11 @@ namespace _unit
 			return false;
 		}
 
-		private bool _structure()
+		private bool _structure(_typeform _typeform)
 		{
 			bool _issuccess = true;
 			// _unit off class
-			if (this._structuretype())
+			if (this._structuretype(_typeform))
 			{
 				// _unit off constructor
 				if (this._structuretypeconstructor())
@@ -179,36 +188,43 @@ namespace _unit
 			return _issuccess;
 		}
 
-		private bool _structuretype()
+		private bool _structuretype(_typeform _typeform)
 		{
 			bool _issuccess = false;
-			try
+			if (_typeform != null)
 			{
-				// _assembly , name
-				AssemblyName _assemblyname = new AssemblyName(this._classconfiguration._retrievename());
+				try
+				{
+					// _assembly , name
+					AssemblyName _assemblyname = new AssemblyName(_typeform._name);
 
-				// _assembly , structure
-				AssemblyBuilder _assemblybuilder = AssemblyBuilder.DefineDynamicAssembly(_assemblyname, AssemblyBuilderAccess.RunAndCollect);
+					// _assembly , structure
+					AssemblyBuilder _assemblybuilder = AssemblyBuilder.DefineDynamicAssembly(_assemblyname, AssemblyBuilderAccess.RunAndCollect);
 
-				// _module , structure
-				ModuleBuilder _modulebuilder = _assemblybuilder.DefineDynamicModule(this._classconfiguration._retrievename());
+					// _module , structure
+					ModuleBuilder _modulebuilder = _assemblybuilder.DefineDynamicModule(_typeform._name);
 
-				// _class , structure
-				this._temptypebuilder = _modulebuilder.DefineType(_assemblyname.FullName,
-					TypeAttributes.Public |
-					TypeAttributes.Class |
-					TypeAttributes.AutoClass |
-					TypeAttributes.AnsiClass |
-					TypeAttributes.BeforeFieldInit |
-					TypeAttributes.AutoLayout |
-					TypeAttributes.Serializable,
-					this._classconfiguration._retrievetypeparent()
-				);
-				_issuccess = true;
+					// _class , structure
+					this._temptypebuilder = _modulebuilder.DefineType(_assemblyname.FullName,
+						TypeAttributes.Public |
+						TypeAttributes.Class |
+						TypeAttributes.AutoClass |
+						TypeAttributes.AnsiClass |
+						TypeAttributes.BeforeFieldInit |
+						TypeAttributes.AutoLayout |
+						TypeAttributes.Serializable//,
+                        //_typeform._typeparent
+                    );
+					_issuccess = true;
+				}
+				catch (Exception _exception)
+				{
+					throw new Exception(_exception.Message);
+				}
 			}
-			catch (Exception _exception)
+			else
 			{
-				throw new Exception(_exception.Message);
+				throw new Exception("Provided _typeform is null.");
 			}
 			return _issuccess;
 		}
