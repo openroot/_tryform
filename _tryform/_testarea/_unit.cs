@@ -178,6 +178,8 @@ namespace _unit
         
         public void _createunit_loremipsum()
         {
+            bool _ishook = "01 ".Trim().All(_c => "0123456789".Contains(_c));
+
             List<_typeconfigurations._type> _sampletypesareal = _typeconfigurations._fetchsampletypes();
             var _sampletypesreal = _typeconfigurations._jsonreal(_sampletypesareal);
             var _sampletypesarealreturned = _typeconfigurations._jsonareal(_sampletypesreal ?? string.Empty);

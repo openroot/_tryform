@@ -11,6 +11,7 @@ using static _unit._classconfiguration._propertyconfiguration;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
 using System.Linq.Expressions;
+using static _unit._classconfiguration;
 
 namespace _unit
 {
@@ -24,9 +25,10 @@ namespace _unit
 		#region attribute
 
 		public _typeconfigurations? _typeconfigurations;
-		private TypeBuilder? _temptypebuilder { get; set; }
-		private Type? _temptype { get; set; }
+		private TypeBuilder? _typebuilder { get; set; }
 
+
+		// TODO: remove these unuseds
         private ulong _typehook;
         private readonly _classconfiguration? _classconfiguration;
 
@@ -41,8 +43,6 @@ namespace _unit
         public _unit(_classconfiguration _classconfiguration)
 		{
 			this._classconfiguration = _classconfiguration;
-			this._temptype = null;
-
 			if (!this._process())
 			{
 				throw new Exception("_unit is not created.");
@@ -52,7 +52,6 @@ namespace _unit
         public _unit(_typeconfigurations _typeconfigurations)
         {
             this._typeconfigurations = _typeconfigurations;
-
             if (!this._process())
             {
                 throw new Exception("_unit is not processed.");
@@ -65,7 +64,7 @@ namespace _unit
 
         private bool _process()
 		{
-			bool _issuccess = false;
+			bool _issuccess = true;
 
 			if (this._typeconfigurations != null)
 			{
@@ -74,35 +73,23 @@ namespace _unit
 				{
 					foreach (_typeform _typeform in _typeforms)
 					{
-						if (_datacontainer._unitcontainer._fetchtypecontainerbytypehook(_typeform._typehook) == null)
+						if (_datacontainer._unitcontainer._fetchtypecontainerbyhook(_typeform._hook) == null)
 						{
-							this._temptypebuilder = null;
-							this._temptype = null;
-
-
-						}
-						else
-						{
-							_issuccess = true;
+							this._resettypebuilder();
+                            if (this._structure(_typeform))
+							{
+								Type? _createdtype = this._trycreatetype();
+                                if (_createdtype != null)
+                                {
+									if (!_datacontainer._unitcontainer._assigntype(_typeform._hook, _typeform, _createdtype))
+									{
+										_issuccess = false;
+										break;
+									}
+                                }
+                            }
 						}
                     }
-					/*if (this._structure())
-					{
-						if (this._createtype())
-						{
-							this._typehook = _unit._classidend._getidend();
-
-							if (_classcontainer._assigntype(this._typehook, this._retrievetype()))
-							{
-								_issuccess = true;
-							}
-							else
-							{
-								this._reset();
-								throw new Exception("_unit is not created.");
-							}
-						}
-					}*/
                 }
                 else
                 {
@@ -116,7 +103,7 @@ namespace _unit
 
 			return _issuccess;
 		}
-
+		/*
 		private bool _rectifyclassconfiguration()
 		{
 			if (this._classconfiguration != null)
@@ -164,7 +151,7 @@ namespace _unit
 			}
 			return false;
 		}
-
+		*/
 		private bool _structure(_typeform _typeform)
 		{
 			bool _issuccess = true;
@@ -175,14 +162,14 @@ namespace _unit
 				if (this._structuretypeconstructor())
 				{
 					// _unit off properties
-					for (int _index = 0; _index < this._classconfiguration._retrieveproperties().Count; _index++)
+					foreach (KeyValuePair<string, string> _property in _typeform._properties)
 					{
-						_issuccess = this._structuretypeproperty(_index);
+						_issuccess = this._structuretypeproperty(_typeform, _property);
 						if (!_issuccess)
 						{
 							break;
 						}
-					}
+                    }
 				}
 			}
 			return _issuccess;
@@ -205,15 +192,28 @@ namespace _unit
 					ModuleBuilder _modulebuilder = _assemblybuilder.DefineDynamicModule(_typeform._name);
 
 					// _class , structure
-					this._temptypebuilder = _modulebuilder.DefineType(_assemblyname.FullName,
+					Type? _typeparent = null;
+					if (_typeform._typeparent > 0)
+					{
+                        _datacontainer._typecontainer? _typecontainer = _datacontainer._unitcontainer._fetchtypecontainerbyhook(_typeform._typeparent);
+						if (_typecontainer != null && _typecontainer._type != null)
+						{
+							_typeparent = _typecontainer._type;
+                        }
+						else
+						{
+							throw new Exception("Either respective _typecontainer or _type respective is null.");
+						}
+					}
+					this._typebuilder = _modulebuilder.DefineType(_assemblyname.FullName,
 						TypeAttributes.Public |
 						TypeAttributes.Class |
 						TypeAttributes.AutoClass |
 						TypeAttributes.AnsiClass |
 						TypeAttributes.BeforeFieldInit |
 						TypeAttributes.AutoLayout |
-						TypeAttributes.Serializable//,
-                        //_typeform._typeparent
+						TypeAttributes.Serializable,
+                        _typeparent
                     );
 					_issuccess = true;
 				}
@@ -232,12 +232,12 @@ namespace _unit
 		private bool _structuretypeconstructor()
 		{
 			bool _issuccess = false;
-			if (this._temptypebuilder != null)
+			if (this._typebuilder != null)
 			{
 				try
 				{
 					// _class constructor , structure
-					this._temptypebuilder?.DefineDefaultConstructor(
+					this._typebuilder?.DefineDefaultConstructor(
 						MethodAttributes.Public |
 						MethodAttributes.SpecialName |
 						MethodAttributes.RTSpecialName
@@ -252,26 +252,35 @@ namespace _unit
 			return _issuccess;
 		}
 
-		private bool _structuretypeproperty(int _index)
+		private bool _structuretypeproperty(_typeform _typeform, KeyValuePair<string, string> _property)
 		{
 			bool _issuccess = false;
-			if (this._temptypebuilder != null)
+			if (this._typebuilder != null)
 			{
 				try
 				{
-					_classconfiguration._propertyconfiguration _property = this._classconfiguration._retrieveproperties()[_index];
+					string _name = _property.Key;
+					Type? _type = null;
 
-					Type? _type = _property._retrievetype();
-					string? _name = _property._retrievename();
+					ulong? _hook = _typeform._trygetnumerichook(_property.Value);
+					if (_hook != null)
+					{
+						_type = _datacontainer._unitcontainer._fetchtypecontainerbyhook(_hook ?? 0)?._type;
+					}
+					else
+					{
+						_type = _typeform._trygettypedefault(_property.Value);
+					}
+
 					if (_type != null)
 					{
-						if (_name != null)
+						if (!string.IsNullOrEmpty(_name))
 						{
 							// _property _field , structure
-							FieldBuilder _fieldbuilder = this._temptypebuilder.DefineField("_field" + _name, _type, FieldAttributes.Private);
+							FieldBuilder _fieldbuilder = this._typebuilder.DefineField("_field" + _name, _type, FieldAttributes.Private);
 
 							// _property _method , structure , get
-							MethodBuilder _methodbuilderget = this._temptypebuilder.DefineMethod("_get" + _name,
+							MethodBuilder _methodbuilderget = this._typebuilder.DefineMethod("_get" + _name,
 								MethodAttributes.Public |
 								MethodAttributes.SpecialName |
 								MethodAttributes.HideBySig,
@@ -285,7 +294,7 @@ namespace _unit
 							_immediatelanguagegeneratorget.Emit(OpCodes.Ret);
 
 							// _property _method , structure , set
-							MethodBuilder _methodbuilderset = this._temptypebuilder.DefineMethod("_set" + _name,
+							MethodBuilder _methodbuilderset = this._typebuilder.DefineMethod("_set" + _name,
 								MethodAttributes.Public |
 								MethodAttributes.SpecialName |
 								MethodAttributes.HideBySig,
@@ -305,7 +314,7 @@ namespace _unit
 							_immediatelanguagegeneratorset.Emit(OpCodes.Ret);
 
 							// _property , structure , off get set
-							PropertyBuilder _propertybuilder = this._temptypebuilder.DefineProperty(_name, PropertyAttributes.HasDefault, _type, null);
+							PropertyBuilder _propertybuilder = this._typebuilder.DefineProperty(_name, PropertyAttributes.HasDefault, _type, null);
 							_propertybuilder.SetGetMethod(_methodbuilderget);
 							_propertybuilder.SetSetMethod(_methodbuilderset);
 
@@ -313,7 +322,7 @@ namespace _unit
 						}
 						else
 						{
-							throw new Exception("Provided _name is null.");
+							throw new Exception("Provided _name is null or empty.");
 						}
 					}
 					else
@@ -329,49 +338,28 @@ namespace _unit
 			return _issuccess;
 		}
 
-		private bool _createtype()
+		private Type? _trycreatetype()
 		{
-			bool _issuccess = false;
+			Type? _createdtype = null;
 			try
 			{
-				this._temptype = this._temptypebuilder?.CreateType() ?? typeof(System.Nullable);
-				_issuccess = true;
+                _createdtype = this._typebuilder?.CreateType();
 			}
 			catch (Exception _exception)
 			{
 				throw new Exception(_exception.Message);
 			}
-			return _issuccess;
+			return _createdtype;
 		}
 
-		private void _reset()
+		private void _resettypebuilder()
 		{
-			this._typehook = default(UInt32);
-			this._temptypebuilder = null;
-			this._temptype = null;
+			this._typebuilder = null;
 		}
 
 		#endregion
 
 		#region public
-
-		/// <summary>
-		/// retrieve _classconfiguration
-		/// </summary>
-		/// <returns>_classconfiguration</returns>
-		public _classconfiguration _retrieveclassconfiguration()
-		{
-			return this._classconfiguration;
-		}
-
-		/// <summary>
-		/// retrieve _type
-		/// </summary>
-		/// <returns>_type</returns>
-		public Type? _retrievetype()
-		{
-			return this._temptype;
-		}
 
 		/// <summary>
 		/// _unit _class off separate _entity
@@ -401,32 +389,6 @@ namespace _unit
 				throw new Exception("Could not create _class _entity", _exception);
 			}
 			return _entity;
-		}
-
-		#endregion
-
-		#region class _classidend
-
-		public static class _classidend
-		{
-			#region attribute
-
-			private static UInt32 _idend = 0;
-
-			#endregion
-
-			#region public
-
-			/// <summary>
-			/// get _idend
-			/// </summary>
-			/// <returns>_idend</returns>
-			public static UInt32 _getidend()
-			{
-				return ++_idend;
-			}
-
-			#endregion
 		}
 
 		#endregion
@@ -709,30 +671,37 @@ namespace _unit
 			{
 				public static Dictionary<ulong, _typecontainer> _typecontainerset = new Dictionary<ulong, _typecontainer>() { };
 
-                public static bool _assigntype(ulong _typehook, _typeconfigurations._typeform _typeform)
+                public static bool _assigntype(ulong _hook, _typeconfigurations._typeform _typeform, Type _type)
                 {
                     bool _issuccess = false;
 
 					if (_typeform != null)
 					{
-						if (_typeform._typehook == _typehook)
+						if (_type != null)
 						{
-							try
+							if (_typeform._hook == _hook)
 							{
-								if (!_typecontainerset.ContainsKey(_typehook))
+								try
 								{
-									_typecontainerset.Add(_typehook, new _typecontainer(_typehook, _typeform));
+									if (!_typecontainerset.ContainsKey(_hook))
+									{
+										_typecontainerset.Add(_hook, new _typecontainer(_hook, _typeform, _type));
+									}
+									_issuccess = true;
 								}
-								_issuccess = true;
+								catch (Exception _exception)
+								{
+									throw new Exception(_exception.Message);
+								}
 							}
-							catch (Exception _exception)
+							else
 							{
-								throw new Exception(_exception.Message);
+								throw new Exception("Provided _typehook and _typeform _typehook is missmatch.");
 							}
-                        }
+						}
                         else
                         {
-                            throw new Exception("Provided _typehook and _typeform _typehook is missmatch.");
+                            throw new Exception("Provided _type is null.");
                         }
                     }
 					else
@@ -743,12 +712,12 @@ namespace _unit
                     return _issuccess;
                 }
 
-				public static _typecontainer? _fetchtypecontainerbytypehook(ulong _typehook)
+				public static _typecontainer? _fetchtypecontainerbyhook(ulong _hook)
 				{
 					_typecontainer? _typecontainer = null;
 					try
 					{
-						_typecontainer = _typecontainerset[_typehook];
+						_typecontainer = _typecontainerset[_hook];
 					}
 					catch (Exception _exception)
 					{
@@ -764,23 +733,32 @@ namespace _unit
 
 			public class _typecontainer
 			{
-				public ulong _typehook { get; set; }
+				public ulong _hook { get; set; }
 				public _typeconfigurations._typeform _typeform { get; set; }
+				public Type _type { get; set; }
 				public _entitycontainer _entitycontainer { get; set; }
 
-				public _typecontainer(ulong _typehook, _typeconfigurations._typeform _typeform)
+				public _typecontainer(ulong _hook, _typeconfigurations._typeform _typeform, Type _type)
 				{
 					if (_typeform != null)
 					{
-						if (_typeform._typehook == _typehook)
+						if (_type != null)
 						{
-							this._typehook = _typehook;
-							this._typeform = _typeform;
-							this._entitycontainer = new _entitycontainer(_typehook);
-                        }
+							if (_typeform._hook == _hook)
+							{
+								this._hook = _hook;
+								this._typeform = _typeform;
+								this._type = _type;
+								this._entitycontainer = new _entitycontainer(_hook);
+							}
+							else
+							{
+								throw new Exception("Provided _typehook and _typeform _typehook is missmatch.");
+							}
+						}
                         else
                         {
-                            throw new Exception("Provided _typehook and _typeform _typehook is missmatch.");
+                            throw new Exception("Provided _type is null.");
                         }
                     }
 					else
@@ -796,12 +774,12 @@ namespace _unit
 
             public class _entitycontainer
 			{
-				public ulong _typehook { get; set; }
+				public ulong _hook { get; set; }
 				public List<object> _entityset = new List<object>() { };
 
-				public _entitycontainer(ulong _typehook)
+				public _entitycontainer(ulong _hook)
 				{
-					this._typehook = _typehook;
+					this._hook = _hook;
 				}
 
                 public bool _assignentity(object _entity)
@@ -1060,7 +1038,7 @@ namespace _unit
 
 		private List<_typeform> _typeforms = new List<_typeform>();
 
-        public enum _typedefaulttypeoptions : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
+        public enum _typedefaultenum : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
 
         #endregion
 
@@ -1206,7 +1184,30 @@ namespace _unit
 			return _jsonareal;
         }
 
-		public static List<_type> _fetchsampletypes()
+        public static bool _istypedefault(string _type)
+        {
+            bool _typedefault;
+
+            if (!string.IsNullOrEmpty(_type))
+            {
+                try
+                {
+                    _typedefault = Enum.IsDefined(typeof(_typeconfigurations._typedefaultenum), _type);
+                }
+                catch (Exception _exception)
+                {
+                    throw new Exception(_exception.Message);
+                }
+            }
+            else
+            {
+                throw new Exception("Provided _type is null or empty.");
+            }
+
+            return _typedefault;
+        }
+
+        public static List<_type> _fetchsampletypes()
 		{
             List<_type> _sampletypes = new List<_type>() {
                 new _type() { _hook = 1, _name = "_xy", _properties = new Dictionary<string, string>() { { "_id", "Int32" }, { "_fullname", "String" }, { "_isdead", "Boolean" } } },
@@ -1225,7 +1226,7 @@ namespace _unit
 			public ulong _hook;
 			public string? _name;
 			public Dictionary<string, string>? _properties;
-			public ulong _typeparent;
+			public ulong? _typeparent;
         }
 
 		#endregion
@@ -1234,68 +1235,135 @@ namespace _unit
 
 		public class _typeform
 		{
-            public Type? _type;
-
-            public ulong _typehook;
-            public string? _name;
-            public Dictionary<string, string>? _properties;
+            public ulong _hook;
+            public string _name;
+            public Dictionary<string, string> _properties;
             public ulong _typeparent;
 			            
 			public _typeform(_type _type)
 			{
+				this._hook = 0;
+				this._name = string.Empty;
+				this._properties = new Dictionary<string, string>() { };
+				this._typeparent = 0;
 				if (!this._process(_type))
 				{
-					throw new Exception("Provided _type is not processed.");
+					throw new Exception("Provided _type is unsuccessfull processed.");
 				}
 			}
 
-			/*
-            public _typeform(Type _type, string _name)
-            {
-				if (_type == null)
-				{
-					throw new Exception("Provided _type is null.");
-				}
-				else if (string.IsNullOrEmpty(_name))
-				{
-					throw new Exception("Provided _name is null or empty.");
-				}
-				else
-				{
-					this._type = _type;
-					this._name = _name;
-				}
-            }
-
-            public _typeform(string _type, string _name)
-            {
-                //this._type = _fetchtypedefault(_type);
-                this._name = _name;
-            }
-
-            public _typeform(_typeconfigurations._typedefaulttypeoptions _type, string _name)
-            {
-                //this._type = _fetchtypedefaultbyenum(_type);
-                this._name = _name;
-            }
-			*/
-
 			private bool _process(_type _type)
 			{
-				bool _issuccess = false;
+				bool _issuccess = true;
 
 				if (_type != null)
 				{
-					// TODO: Cross check availability or repeat against _classcontainer
-					/*this._typehook = _type._hook;
-					this._name = _type._name;
-					this._typeparent = _type._typeparent;
-					
-					this._properties = _type._properties;*/
+					if (_type._hook > 0 && _unit._datacontainer._unitcontainer._fetchtypecontainerbyhook(_type._hook) == null)
+					{
+						this._hook = _type._hook;
+
+						if (!string.IsNullOrEmpty((_type._name ?? string.Empty).Trim()))
+						{
+							this._name = _type._name ?? string.Empty;
+                        }
+                        else
+                        {
+                            _issuccess = false;
+                        }
+
+						if (_type._properties != null)
+						{
+							foreach (KeyValuePair<string, string> _property in _type._properties)
+							{
+								if (!string.IsNullOrEmpty(_property.Key.Trim()))
+								{
+									ulong? _hook = this._trygetnumerichook(_property.Value);
+									if (_hook != null)
+									{
+										if (_hook > 0 && _unit._datacontainer._unitcontainer._fetchtypecontainerbyhook(_hook ?? 0) != null)
+										{
+											this._properties.Add(_property.Key, _property.Value);
+										}
+										else
+										{
+											_issuccess = false;
+										}
+									}
+									else if (!string.IsNullOrEmpty(_property.Value.Trim()) && _typeconfigurations._istypedefault(_property.Value))
+									{
+										this._properties.Add(_property.Key, _property.Value);
+                                    }
+                                    else
+                                    {
+                                        _issuccess = false;
+                                    }
+								}
+								else
+								{
+									_issuccess = false;
+								}
+                            }
+                        }
+
+                        if ((_type._typeparent ?? 0) > 0 && _unit._datacontainer._unitcontainer._fetchtypecontainerbyhook(_type._typeparent ?? 0) != null)
+                        {
+                            this._typeparent = _type._typeparent ?? 0;
+                        }
+                        else
+                        {
+                            _issuccess = false;
+                        }
+                    }
+					else
+					{
+						_issuccess = false;
+					}
 				}
 
 				return _issuccess;
 			}
+
+			public ulong? _trygetnumerichook(string _type)
+			{
+				ulong? _retrievedhook = null;
+				if (!string.IsNullOrEmpty(_type))
+				{
+					try
+					{
+						bool _ishook = _type.All(_charset => "0123456789".Contains(_charset));
+						if (_ishook)
+						{
+							ulong _hook = 0;
+							ulong.TryParse(_type, out _hook);
+							if (_hook > 0)
+							{
+								_retrievedhook = _hook;
+							}
+						}
+                    }
+                    catch (Exception _exception)
+                    {
+                        throw new Exception(_exception.Message);
+                    }
+                }
+				return _retrievedhook;
+            }
+
+            public Type? _trygettypedefault(string _typedefaultinstring)
+            {
+                Type? _retrievedtypedefault = null;
+
+                try
+                {
+                    _retrievedtypedefault = Type.GetType("System." + _typedefaultinstring);
+                }
+                catch (Exception _exception)
+                {
+                    throw new Exception("Type off default , unsuccessful to retrieve.", _exception);
+                }
+
+                return _retrievedtypedefault;
+            }
         }
 
 		#endregion
