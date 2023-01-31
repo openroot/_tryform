@@ -291,6 +291,9 @@ namespace _unit
 
     #region class _typeconfiguration
 
+    /// <summary>
+    /// _unit off _typeconfiguration
+    /// </summary>
     public class _typeconfiguration
     {
         #region attribute
@@ -902,6 +905,9 @@ namespace _unit
 
     #region class _datacontainer
 
+    /// <summary>
+    /// _datacontainer
+    /// </summary>
     public class _datacontainer
     {
         #region class _unitcontainer
