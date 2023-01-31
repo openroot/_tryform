@@ -177,26 +177,26 @@ namespace _unit
         
         public void _createunit_loremipsum()
         {
-            List<_typeconfigurations._type> _sampletypesarealconfiguration = _typeconfigurations._fetchsampletypes();
-            string? _sampletypesrealconfiguration = _typeconfigurations._jsonreal(_sampletypesarealconfiguration);
+            List<_typeconfiguration._typeraw> _sampletypearealconfiguration = _typeconfiguration._fetchsampletyperawset();
+            string? _sampletyperealconfiguration = _typeconfiguration._jsonreal(_sampletypearealconfiguration);
             
-            _typeconfigurations? _sampletypesconfiguration = null;
+            _typeconfiguration? _sampletypeconfiguration = null;
             try
             {
-                _sampletypesconfiguration = new _typeconfigurations(_sampletypesrealconfiguration ?? string.Empty);
-                Console.WriteLine("_typeconfigurations created.");
+                _sampletypeconfiguration = new _typeconfiguration(_sampletyperealconfiguration ?? string.Empty);
+                Console.WriteLine("_typeconfiguration created.");
             }
             catch (Exception _exception)
             {
-                Console.WriteLine("_typeconfigurations not created. ", _exception.Message);
+                Console.WriteLine("_typeconfiguration not created. ", _exception.Message);
             }
 
-            if (_sampletypesconfiguration != null)
+            if (_sampletypeconfiguration != null)
             {
                 _unit? _unit = null;
                 try
                 {
-                    _unit = new _unit(_sampletypesconfiguration);
+                    _unit = new _unit(_sampletypeconfiguration);
                     Console.WriteLine("_unit created.");
                 }
                 catch (Exception _exception)
@@ -236,7 +236,8 @@ namespace _unit
                         });
 
                         Console.WriteLine("_entity(s) created.");
-                        //string? _jsonreal = new _unit._classcontainerbatch()._jsonreal();
+                        string? _datarealcomplete = _datacontainer._unitcontainer._datareal(true);
+                        string? _datarealhook3 = _datacontainer._unitcontainer._datareal(true, 3);
                     }
                     catch (Exception _exception)
                     {

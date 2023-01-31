@@ -4,7 +4,7 @@ using Label = System.Reflection.Emit.Label;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
-using static _unit._typeconfigurations;
+using static _unit._typeconfiguration;
 
 namespace _unit
 {
@@ -17,16 +17,16 @@ namespace _unit
 	{
 		#region attribute
 
-		public _typeconfigurations? _typeconfigurations;
+		public _typeconfiguration? _typeconfiguration;
 		private TypeBuilder? _typebuilder { get; set; }
 
         #endregion
 
         #region constructor
 
-        public _unit(_typeconfigurations _typeconfigurations)
+        public _unit(_typeconfiguration _typeconfigurations)
         {
-            this._typeconfigurations = _typeconfigurations;
+            this._typeconfiguration = _typeconfigurations;
             if (!this._process())
             {
                 throw new Exception("_unit is not processed.");
@@ -41,12 +41,12 @@ namespace _unit
 		{
 			bool _issuccess = true;
 
-			if (this._typeconfigurations != null)
+			if (this._typeconfiguration != null)
 			{
-				List<_typeform> _typeforms = this._typeconfigurations._retrievetypeforms();
-				if (_typeforms != null)
+				List<_typeform> _typeformset = this._typeconfiguration._retrievetypeformset();
+				if (_typeformset != null)
 				{
-					foreach (_typeform _typeform in _typeforms)
+					foreach (_typeform _typeform in _typeformset)
 					{
 						if (_datacontainer._unitcontainer._fetchtypecontainerbyhook(_typeform._hook) == null)
 						{
@@ -68,12 +68,12 @@ namespace _unit
                 }
                 else
                 {
-                    throw new Exception("Provided _typeforms is null.");
+                    throw new Exception("Provided _typeformset is null.");
                 }
             }
 			else
 			{
-				throw new Exception("Provided _typeconfigurations is null.");
+				throw new Exception("Provided _typeconfiguration is null.");
 			}
 
 			return _issuccess;
@@ -88,8 +88,8 @@ namespace _unit
 				// _unit off constructor
 				if (this._structuretypeconstructor())
 				{
-					// _unit off properties
-					foreach (KeyValuePair<string, string> _property in _typeform._properties)
+					// _unit off propertieset
+					foreach (KeyValuePair<string, string> _property in _typeform._propertyset)
 					{
 						_issuccess = this._structuretypeproperty(_typeform, _property);
 						if (!_issuccess)
@@ -285,80 +285,19 @@ namespace _unit
 		}
 
 		#endregion
-
-        /*#region class _classcontainerbatch
-
-        /// <summary>
-        /// _classcontainerbatch
-        /// </summary>
-        public class _classcontainerbatch
-        {
-            #region attribute
-
-            private Dictionary<ulong, _entityset> _classset = new Dictionary<ulong, _entityset>() { };
-
-            #endregion
-
-            #region constructor
-
-            public _classcontainerbatch()
-            {
-                this._classset = _classcontainer._retrieveclassset();
-            }
-            public _classcontainerbatch(Dictionary<ulong, _entityset> _classset)
-            {
-                this._classset = _classset;
-            }
-            public _classcontainerbatch(ulong _classid, _entityset _entityset)
-            {
-                this._classset.Add(_classid, _entityset);
-            }
-
-            #endregion
-
-            #region public
-
-            /// <summary>
-            /// serialize real json
-            /// </summary>
-            /// <param name="_writeindented">_writeindented</param>
-            /// <returns>json</returns>
-            /// <exception cref="Exception"></exception>
-            public string? _jsonreal(bool _writeindented = true)
-            {
-                string? _json = null;
-
-                try
-                {
-                    JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true, WriteIndented = _writeindented };
-                    _json = JsonSerializer.Serialize<Dictionary<ulong, _entityset>>(this._classset, _options);
-                }
-                catch (Exception _exception)
-                {
-                    throw new Exception("json serialize inevitable.", _exception);
-                }
-
-                return _json;
-            }
-
-            #endregion
-        }
-
-		#endregion*/
     }
 
     #endregion
 
-    #region class _typeconfigurations
+    #region class _typeconfiguration
 
-    public class _typeconfigurations
+    public class _typeconfiguration
     {
         #region attribute
 
-		private List<_type>? _types;
-        private string? _typesreal;
-
-		private List<_typeform> _typeforms = new List<_typeform>();
+        private string? _typereal;
+        private List<_typeraw>? _typerawset;
+		private List<_typeform> _typeformset = new List<_typeform>();
 
         public enum _typedefaultenum : byte { Int16, Int32, Int64, UInt16, UInt32, UInt64, Single, Double, Char, Boolean, String };
 
@@ -366,35 +305,35 @@ namespace _unit
 
         #region constructor
 
-        public _typeconfigurations([Optional]string _typesreal)
+        public _typeconfiguration([Optional]string _typereal)
 		{
-			if (this._isformjsonreal(_typesreal))
+			if (this._isformjsonreal(_typereal))
 			{
-				List<_type>? _typesareal = _typeconfigurations._jsonareal(_typesreal);
-                if (this._process(_typesareal))
+				List<_typeraw>? _typerawset = _typeconfiguration._jsonareal(_typereal);
+                if (this._process(_typerawset))
 				{
-					this._types = _typesareal;
-					this._typesreal = _typesreal;
+					this._typerawset = _typerawset;
+					this._typereal = _typereal;
                 }
 				else
 				{
-					throw new Exception("Unable to process _typeconfigurations.");
+					throw new Exception("Unable to process _typeconfiguration.");
 				}
             }
             else
             {
-                throw new Exception("_typesreal is not in form.");
+                throw new Exception("_typereal is not in form.");
             }
         }
 
-		public _typeconfigurations([Optional]List<_type> _types)
+		public _typeconfiguration([Optional]List<_typeraw> _typerawset)
 		{
-			if (_types != null)
+			if (_typerawset != null)
 			{
-				if (this._process(_types))
+				if (this._process(_typerawset))
 				{
-					this._types = _types;
-					this._typesreal = _typeconfigurations._jsonreal(_types);
+					this._typerawset = _typerawset;
+					this._typereal = _typeconfiguration._jsonreal(_typerawset);
                 }
                 else
                 {
@@ -411,12 +350,12 @@ namespace _unit
 
         #region private
 
-        private bool _process(List<_type>? _types)
+        private bool _process(List<_typeraw>? _typerawset)
         {
             bool _issuccess = false;
-            if (_types != null)
+            if (_typerawset != null)
             {
-                _issuccess = this._feedtypeforms(_types);
+                _issuccess = this._feedtypeformset(_typerawset);
             }
             else
             {
@@ -425,14 +364,14 @@ namespace _unit
             return _issuccess;
         }
 
-		private bool _feedtypeforms(List<_type> _types)
+		private bool _feedtypeformset(List<_typeraw> _typerawset)
 		{
 			bool _issuccess = false;
 			try
 			{
-				foreach (_type _type in _types)
+				foreach (_typeraw _type in _typerawset)
 				{
-					this._typeforms.Add(new _typeform(this._typeforms, _type));
+					this._typeformset.Add(new _typeform(this._typeformset, _type));
 				}
 				_issuccess = true;
 			}
@@ -447,10 +386,10 @@ namespace _unit
 		{
 			bool _isform = false;
 
-			List<_type>? _jsonareal = _typeconfigurations._jsonareal(_jsonreal);
+			List<_typeraw>? _jsonareal = _typeconfiguration._jsonareal(_jsonreal);
 			if (_jsonareal != null)
 			{
-				string? _triedjsonreal = _typeconfigurations._jsonreal(_jsonareal);
+				string? _triedjsonreal = _typeconfiguration._jsonreal(_jsonareal);
 				if (_triedjsonreal != null)
 				{
 					if (_jsonreal.Equals(_triedjsonreal))
@@ -467,27 +406,27 @@ namespace _unit
 
         #region public
 
-		public List<_typeform> _retrievetypeforms()
+		public List<_typeform> _retrievetypeformset()
 		{
-			return this._typeforms;
+			return this._typeformset;
 		}
 
-        public bool _checktypesreal(string _typesreal)
+        public bool _checktypesreal(string _typereal)
 		{
 			bool _isform = false;
 
-			_isform = this._isformjsonreal(_typesreal);
+			_isform = this._isformjsonreal(_typereal);
 
             return _isform;
         }
 
-		public static string? _jsonreal(List<_type> _types)
+		public static string? _jsonreal(List<_typeraw> _typerawset)
 		{
 			string? _jsonreal = null;
             JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true };
 			try
 			{
-                _jsonreal = JsonSerializer.Serialize<List<_type>>(_types, _options);
+                _jsonreal = JsonSerializer.Serialize<List<_typeraw>>(_typerawset, _options);
 			}
 			catch (Exception _exception)
 			{
@@ -496,13 +435,13 @@ namespace _unit
 			return _jsonreal;
         }
 
-		public static List<_type>? _jsonareal(string _types)
+		public static List<_typeraw>? _jsonareal(string _typerawset)
 		{
-			List<_type>? _jsonareal = null;
+			List<_typeraw>? _jsonareal = null;
             JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true };
 			try
 			{
-                _jsonareal = JsonSerializer.Deserialize<List<_type>>(_types, _options)!;
+                _jsonareal = JsonSerializer.Deserialize<List<_typeraw>>(_typerawset, _options)!;
             }
 			catch (Exception _exception)
 			{
@@ -511,14 +450,14 @@ namespace _unit
 			return _jsonareal;
         }
 
-        public static List<_type> _fetchsampletypes()
+        public static List<_typeraw> _fetchsampletyperawset()
 		{
-            List<_type> _sampletypes = new List<_type>() {
-                new _type() { _hook = 1, _name = "_xy", _properties = new Dictionary<string, string>() { { "_id", "Int32" }, { "_fullname", "String" }, { "_isdead", "Boolean" } } },
-                new _type() { _hook = 2, _name = "_pq", _properties = new Dictionary<string, string>() { { "_xy", "1" }, { "_tag", "String" } } },
-                new _type() { _hook = 3, _name = "_st", _properties = new Dictionary<string, string>() { { "_service", "String" }, { "_api", "Boolean" } }, _typeparent = 2 }
+            List<_typeraw> _sampletyperawset = new List<_typeraw>() {
+                new _typeraw() { _hook = 1, _name = "_xy", _propertyset = new Dictionary<string, string>() { { "_id", "Int32" }, { "_fullname", "String" }, { "_isdead", "Boolean" } } },
+                new _typeraw() { _hook = 2, _name = "_pq", _propertyset = new Dictionary<string, string>() { { "_xy", "1" }, { "_tag", "String" } } },
+                new _typeraw() { _hook = 3, _name = "_st", _propertyset = new Dictionary<string, string>() { { "_service", "String" }, { "_api", "Boolean" } }, _typeparent = 2 }
             };
-			return _sampletypes;
+			return _sampletyperawset;
         }
 
         public static bool _istypedefault(string _type)
@@ -529,7 +468,7 @@ namespace _unit
             {
                 try
                 {
-                    _typedefault = Enum.IsDefined(typeof(_typeconfigurations._typedefaultenum), _type);
+                    _typedefault = Enum.IsDefined(typeof(_typeconfiguration._typedefaultenum), _type);
                 }
                 catch (Exception _exception)
                 {
@@ -546,15 +485,15 @@ namespace _unit
 
         #endregion
 
-        #region class _type
+        #region class _typeraw
 
-        public class _type
+        public class _typeraw
 		{
             #region attribute
 
             public ulong _hook;
 			public string? _name;
-			public Dictionary<string, string>? _properties;
+			public Dictionary<string, string>? _propertyset;
 			public ulong? _typeparent;
 
 			#endregion
@@ -568,22 +507,22 @@ namespace _unit
 		{
             #region attribute
 
-            private List<_typeform> _typeforms;
+            private List<_typeform> _typeformset;
             public ulong _hook;
             public string _name;
-            public Dictionary<string, string> _properties;
+            public Dictionary<string, string> _propertyset;
             public ulong _typeparent;
 
             #endregion
 
             #region constructor
 
-            public _typeform(List<_typeform> _typeforms, _type _type)
+            public _typeform(List<_typeform> _typeformset, _typeraw _type)
 			{
-				this._typeforms = _typeforms;
+				this._typeformset = _typeformset;
                 this._hook = 0;
 				this._name = string.Empty;
-				this._properties = new Dictionary<string, string>() { };
+				this._propertyset = new Dictionary<string, string>() { };
 				this._typeparent = 0;
 				if (!this._process(_type))
 				{
@@ -595,7 +534,7 @@ namespace _unit
 
             #region private
 
-            private bool _process(_type _type)
+            private bool _process(_typeraw _type)
 			{
 				bool _issuccess = true;
 
@@ -614,9 +553,9 @@ namespace _unit
                             _issuccess = false;
                         }
 
-						if (_type._properties != null)
+						if (_type._propertyset != null)
 						{
-							foreach (KeyValuePair<string, string> _property in _type._properties)
+							foreach (KeyValuePair<string, string> _property in _type._propertyset)
 							{
 								if (!string.IsNullOrEmpty(_property.Key.Trim()))
 								{
@@ -625,7 +564,7 @@ namespace _unit
 									{
                                         if (_hook > 0 && (_datacontainer._unitcontainer._fetchtypecontainerbyhook(_hook ?? 0) != null || this._ishookexistslocal(_hook ?? 0)))
 										{
-											this._properties.Add(_property.Key, _property.Value);
+											this._propertyset.Add(_property.Key, _property.Value);
 										}
 										else
 										{
@@ -633,9 +572,9 @@ namespace _unit
 											break;
 										}
 									}
-									else if (!string.IsNullOrEmpty(_property.Value.Trim()) && _typeconfigurations._istypedefault(_property.Value))
+									else if (!string.IsNullOrEmpty(_property.Value.Trim()) && _typeconfiguration._istypedefault(_property.Value))
 									{
-										this._properties.Add(_property.Key, _property.Value);
+										this._propertyset.Add(_property.Key, _property.Value);
                                     }
                                     else
                                     {
@@ -721,7 +660,7 @@ namespace _unit
             public bool _ishookexistslocal(ulong _hook)
             {
                 bool _ishookexists = false;
-                foreach (_typeform _typeform in this._typeforms)
+                foreach (_typeform _typeform in this._typeformset)
                 {
                     if (_typeform._hook == _hook)
                     {
@@ -971,7 +910,7 @@ namespace _unit
         {
             public static Dictionary<ulong, _typecontainer> _typecontainerset = new Dictionary<ulong, _typecontainer>() { };
 
-            public static bool _assigntype(ulong _hook, _typeconfigurations._typeform _typeform, Type _type)
+            public static bool _assigntype(ulong _hook, _typeconfiguration._typeform _typeform, Type _type)
             {
                 bool _issuccess = false;
 
@@ -1029,6 +968,30 @@ namespace _unit
             public static Dictionary<ulong, _typecontainer> _fetchtypecontainerset()
             {
                 return _typecontainerset;
+            }
+
+            public static string? _datareal(bool _writeindented, [Optional]ulong _hook)
+            {
+                string? _real = null;
+
+                try
+                {
+                    JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true, WriteIndented = _writeindented };
+                    if (_hook > 0)
+                    {
+                        _real = JsonSerializer.Serialize<_typecontainer?>(_fetchtypecontainerbyhook(_hook), _options);
+                    }
+                    else
+                    {
+                        _real = JsonSerializer.Serialize<Dictionary<ulong, _typecontainer>>(_fetchtypecontainerset(), _options);
+                    }
+                }
+                catch (Exception _exception)
+                {
+                    throw new Exception("json serialize inevitable.", _exception);
+                }
+
+                return _real;
             }
         }
 
