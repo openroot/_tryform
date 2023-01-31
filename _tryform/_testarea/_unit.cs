@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static _unit._unit._classcontainer;
 
 namespace _unit
 {
@@ -84,7 +83,7 @@ namespace _unit
 
                         // pass the instance object to action propagator
                         int _indentcount = 0;
-                        this._instanceactions(_operation, _indentcount, _instance, _unitcategory.Key);
+                        //this._instanceactions(_operation, _indentcount, _instance, _unitcategory.Key);
                     }
 
                     _message = Environment.NewLine + "]]]";
@@ -95,7 +94,7 @@ namespace _unit
             }
         }
         
-        private void _instanceactions(char _operation, int _indentcount, Object _object, Guid _guid)
+        /*private void _instanceactions(char _operation, int _indentcount, Object _object, Guid _guid)
         {
             if (_object != null)
             {
@@ -174,127 +173,78 @@ namespace _unit
                 // block , end
                 Console.Write(Environment.NewLine + _indentmessage + "}");
             }
-        }
+        }*/
         
         public void _createunit_loremipsum()
         {
             bool _ishook = "01 ".Trim().All(_c => "0123456789".Contains(_c));
 
-            List<_typeconfigurations._type> _sampletypesareal = _typeconfigurations._fetchsampletypes();
-            var _sampletypesreal = _typeconfigurations._jsonreal(_sampletypesareal);
-            var _sampletypesarealreturned = _typeconfigurations._jsonareal(_sampletypesreal ?? string.Empty);
-            var _sampleclassconfig = new _typeconfigurations(_sampletypesreal ?? string.Empty);
-
+            List<_typeconfigurations._type> _sampletypesarealconfiguration = _typeconfigurations._fetchsampletypes();
+            string? _sampletypesrealconfiguration = _typeconfigurations._jsonreal(_sampletypesarealconfiguration);
+            
+            _typeconfigurations? _sampletypesconfiguration = null;
             try
             {
-                // block , start
-
-                // _class _loremipsum , _classconfiguration
-                _classconfiguration _loremipsumclassconfig = new _classconfiguration(
-                    "_loremipsum",
-                    new List<_classconfiguration._propertyconfiguration>() {
-                    new _classconfiguration._propertyconfiguration("Int32", "_id"),
-                    new _classconfiguration._propertyconfiguration("String", "_fullname"),
-                    new _classconfiguration._propertyconfiguration("String", "_address"),
-                    new _classconfiguration._propertyconfiguration("Boolean", "_isdead"),
-                    new _classconfiguration._propertyconfiguration("String", "_foo")
-                    }
-                );
-                // _class _loremipsum , creating _class
-                _unit _loremipsum = new _unit(_loremipsumclassconfig);
-                // _class _loremipsum , creating _entity _foobar
-                _instance _foobar = new _instance(_loremipsum);
-                if (_foobar != null)
-                {
-                    // _entity _foobar , assiging properties
-                    _foobar._assignproperties(new Dictionary<string, object?>() {
-                        {"_id", 796},
-                        {"_fullname", "Debaprasad Tapader"},
-                        {"_address", "Deoghar, JH, IN"},
-                        {"_isdead", true},
-                        {"_foo", null}
-                    });
-                }
-
-                // block , end
-
-                if (_foobar != null)
-                {
-                    // block , start
-
-                    _classconfiguration _loremipsumseparateclassconfig = new _classconfiguration(
-                        "_loremipsumseparate",
-                        new List<_classconfiguration._propertyconfiguration>() {
-                            new _classconfiguration._propertyconfiguration(_loremipsum._retrievetype(), "_loremipsum"), // TODO: pass Type user-defined as string
-                            new _classconfiguration._propertyconfiguration("String", "_sector"),
-                            new _classconfiguration._propertyconfiguration("Int32", "_year"),
-                            new _classconfiguration._propertyconfiguration("Boolean", "_isactive")
-                        }
-                    );
-                    _unit _loremipsumseparate = new _unit(_loremipsumseparateclassconfig);
-                    _instance _foobar101 = new _instance(_loremipsumseparate);
-                    if (_foobar101 != null)
-                    {
-                        _foobar101._assignproperties(new Dictionary<string, object?>() {
-                            {"_loremipsum", _foobar._retrieveentity()}, // TODO: pass Entity name as string
-                            {"_sector", "Matter Design"},
-                            {"_year", 2003},
-                            {"_isactive", false}
-                        });
-                    }
-                    _instance _foobar201 = new _instance(_loremipsumseparate);
-                    if (_foobar201 != null)
-                    {
-                        _foobar201._assignproperties(new Dictionary<string, object?>() {
-                            {"_loremipsum", null},
-                            {"_sector", "Classic Culture"},
-                            {"_year", 2004},
-                            {"_isactive", true}
-                        });
-                    }
-
-                    // block , end
-
-                    // block , start
-
-                    _classconfiguration _loremipsumchildclassconfig = new _classconfiguration(
-                        "_loremipsumchild",
-                        new List<_classconfiguration._propertyconfiguration>() {
-                            new _classconfiguration._propertyconfiguration("String", "_service"),
-                            new _classconfiguration._propertyconfiguration("Int32", "_tag"),
-                            new _classconfiguration._propertyconfiguration("Boolean", "_sql"),
-                            new _classconfiguration._propertyconfiguration("Boolean", "_cloud"),
-                            new _classconfiguration._propertyconfiguration("Boolean", "_api")
-                        },
-                        _loremipsum._retrievetype() // TODO: pass Type user-defined as string
-                    );
-                    _unit _loremipsumchild = new _unit(_loremipsumchildclassconfig);
-                    _instance _foobar1001 = new _instance(_loremipsumchild);
-                    if (_foobar1001 != null)
-                    {
-                        _foobar1001._assignproperties(new Dictionary<string, object?>() {
-                            {"_id", 48},
-                            {"_fullname", "Debaprasad Tapader"},
-                            {"_address", "Siliguri, WB, IN"},
-                            {"_isdead", false},
-                            {"_foo", "_loremipsumchild"},
-                            { "_service", "expat" },
-                            { "_tag", 301 },
-                            { "_sql", false },
-                            { "_cloud", true },
-                            { "_json", false }
-                        });
-                    }
-                    // block , end
-                }
-                Console.Write("unit loremipsum created");
-
-                Dictionary<ulong, _entityset> _classset = _unit._classcontainer._retrieveclassset();
-                string? _jsonreal = new _unit._classcontainerbatch()._jsonreal();
+                _sampletypesconfiguration = new _typeconfigurations(_sampletypesrealconfiguration ?? string.Empty);
+                Console.WriteLine("_typeconfigurations created.");
             }
             catch (Exception _exception)
             {
-                Console.WriteLine("EXCEPTION: " + _exception.Message);
+                Console.WriteLine("_typeconfigurations not created. ", _exception.Message);
+            }
+
+            if (_sampletypesconfiguration != null)
+            {
+                _unit? _unit = null;
+                try
+                {
+                    _unit = new _unit(_sampletypesconfiguration);
+                    Console.WriteLine("_unit created.");
+                }
+                catch (Exception _exception)
+                {
+                    Console.WriteLine("_unit not created. ", _exception.Message);
+                }
+
+                if (_unit != null)
+                {
+                    var _unitcontainer = _datacontainer._unitcontainer._fetchtypecontainerset();
+
+                    try
+                    {
+                        _instance _xy_i1 = new _instance(1);
+                        _instance _pq_i1 = new _instance(2);
+                        _instance _st_i1 = new _instance(3);
+                        _instance _st_i2 = new _instance(3);
+
+                        _xy_i1._assignproperties(new Dictionary<string, object?>() {
+                            {"_id", 796},
+                            {"_fullname", "Debaprasad Tapader"},
+                            {"_isdead", true}
+                        });
+                        _pq_i1._assignproperties(new Dictionary<string, object?>() {
+                            {"_xy", _xy_i1._retrieveentity()},
+                            {"_tag", "Computer Scientist"}
+                        });
+                        _st_i1._assignproperties(new Dictionary<string, object?>() {
+                            {"_xy", _xy_i1._retrieveentity()},
+                            {"_tag", "Software"},
+                            {"_service", "Engineering"},
+                            {"_api", true}
+                        });
+                        _st_i2._assignproperties(new Dictionary<string, object?>() {
+                            {"_service", "R&D"},
+                            {"_api", false}
+                        });
+
+                        Console.WriteLine("_entity(s) created.");
+                        //string? _jsonreal = new _unit._classcontainerbatch()._jsonreal();
+                    }
+                    catch (Exception _exception)
+                    {
+                        Console.WriteLine("_entity(s) not created. ", _exception.Message);
+                    }
+                }
             }
         }
 
