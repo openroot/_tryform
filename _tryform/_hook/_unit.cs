@@ -693,17 +693,19 @@ namespace _unit
 
         private readonly object _entity;
         private readonly Type _type;
+		public ulong? _fence;
 
         #endregion
 
         #region constructor
 
-        public _instance(ulong _hook)
+        public _instance(ulong _hook, [Optional]ulong? _fence)
         {
 			if (_hook > 0)
 			{
 				this._entity = _trycreateentity(_hook) ?? throw new Exception("_entity not created.");
                 this._type = this._entity.GetType() ?? throw new Exception("_type not created.");
+				this._fence = _fence;
 			}
 			else
 			{
@@ -807,6 +809,30 @@ namespace _unit
                 throw new Exception("Provided _entity is null.");
             }
             return _value;
+        }
+
+        public ulong? _trygetnumericfense(object _value)
+        {
+            ulong? _retrievedfense = null;
+            try
+            {
+                string? _valueasstring = _value as string;
+                if (!string.IsNullOrEmpty(_valueasstring))
+                {
+                    bool _ispossiblefense = _valueasstring.All(_charset => "0123456789".Contains(_charset));
+                    ulong _fensepossible = 0;
+                    ulong.TryParse(_value as string, out _fensepossible);
+                    if (_fensepossible > 0)
+                    {
+                        // TODO: try cross-check if weather _fense is ava and if ava then type matches with config , if found then return as _retrievedfense
+                    }
+                }
+            }
+            catch (Exception _exception)
+            {
+                throw new Exception(_exception.Message);
+            }
+            return _retrievedfense;
         }
 
         #endregion
