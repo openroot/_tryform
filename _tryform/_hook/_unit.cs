@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 
 using static _unit._typeconfiguration;
+using static _unit._datacontainer;
 
 namespace _unit
 {
@@ -841,23 +842,24 @@ namespace _unit
                     ulong.TryParse(_valueasstring, out _fencepossible);
                     if (_fencepossible > 0)
                     {
-                        foreach (KeyValuePair<ulong, _datacontainer._typecontainer> _typecontainerset in _datacontainer._unitcontainer._fetchtypecontainerset())
+                        KeyValuePair<ulong, _datacontainer._typecontainer>? _typecontainerset = null;
+                        try
                         {
-                            _datacontainer._typecontainer _typecontainer = _typecontainerset.Value;
-                            if (_typecontainer != null)
+                            _typecontainerset = _datacontainer._unitcontainer._fetchtypecontainerset().Where<KeyValuePair<ulong, _datacontainer._typecontainer>>(_x => _x.Value._retrievetype() == _type).First();
+                        }
+                        catch { }
+                        if (_typecontainerset != null)
+                        {
+                            KeyValuePair<object, ulong?>? _valuefound = null;
+                            try
                             {
-                                if (_typecontainer._retrievetype() == _type)
-                                {
-                                    foreach (KeyValuePair<object, ulong?> _entity in _typecontainer._entitycontainer._entityset)
-                                    {
-                                        if ((_entity.Value ?? 0) == _fencepossible)
-                                        {
-                                            _valuefence = _entity.Key;
-                                            _retrievedfence = _fencepossible;
-                                            break;
-                                        }
-                                    }
-                                }
+                                _valuefound = _typecontainerset.Value.Value._retrieveentitycontainer()._entityset.Where<KeyValuePair<object, ulong?>>(_x => (_x.Value ?? 0) == _fencepossible).First();
+                            }
+                            catch { }
+                            if (_valuefound != null)
+                            {
+                                _valuefence = _valuefound.Value.Key;
+                                _retrievedfence = _fencepossible;
                             }
                         }
                     }
