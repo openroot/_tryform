@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
 using Label = System.Reflection.Emit.Label;
 using System.Runtime.InteropServices;
@@ -460,7 +459,7 @@ namespace _unit
             List<_typeraw> _sampletyperawset = new List<_typeraw>() {
                 new _typeraw() { _hook = 1, _name = "_xy", _propertyset = new Dictionary<string, string>() { { "_id", "Int32" }, { "_fullname", "String" }, { "_isdead", "Boolean" } } },
                 new _typeraw() { _hook = 2, _name = "_pq", _propertyset = new Dictionary<string, string>() { { "_xy", "1" }, { "_tag", "String" } } },
-                new _typeraw() { _hook = 3, _name = "_st", _propertyset = new Dictionary<string, string>() { { "_service", "String" }, { "_api", "Boolean" } }, _typeparent = 2 }
+                new _typeraw() { _hook = 13, _name = "_st", _propertyset = new Dictionary<string, string>() { { "_service", "String" }, { "_api", "Boolean" } }, _typeparent = 2 }
             };
 			return _sampletyperawset;
         }
@@ -547,7 +546,15 @@ namespace _unit
 				{
 					if (_type._hook > 0 && _datacontainer._unitcontainer._fetchtypecontainerbyhook(_type._hook) == null)
 					{
-						this._hook = _type._hook;
+                        if (this._ishookunique(_type._hook))
+                        {
+                            this._hook = _type._hook;
+                        }
+                        else
+                        {
+                            _issuccess = false;
+                            throw new Exception("Provided _hook is not unique.");
+                        }
 
 						if (!string.IsNullOrEmpty((_type._name ?? string.Empty).Trim()))
 						{
@@ -556,6 +563,7 @@ namespace _unit
                         else
                         {
                             _issuccess = false;
+                            throw new Exception("Provided _name is null or empty.");
                         }
 
 						if (_type._propertyset != null)
@@ -575,7 +583,8 @@ namespace _unit
 										{
 											_issuccess = false;
 											break;
-										}
+                                            throw new Exception("Provided _property _hook userdefined is not available.");
+                                        }
 									}
 									else if (!string.IsNullOrEmpty(_property.Value.Trim()) && _typeconfiguration._istypedefault(_property.Value))
 									{
@@ -584,14 +593,16 @@ namespace _unit
                                     else
                                     {
                                         _issuccess = false;
-										break;
+                                        break;
+                                        throw new Exception("Provided _hook of typedefault is error prone.");
                                     }
 								}
 								else
 								{
 									_issuccess = false;
 									break;
-								}
+                                    throw new Exception("Provided _property _name is null or empty.");
+                                }
                             }
                         }
 
@@ -604,13 +615,15 @@ namespace _unit
 							else
 							{
 								_issuccess = false;
-							}
+                                throw new Exception("Provided _typeparent _hook userdefined is not available.");
+                            }
 						}
                     }
 					else
 					{
 						_issuccess = false;
-					}
+                        throw new Exception("Provided _hook is either invalid or not unique.");
+                    }
 				}
 
 				return _issuccess;
@@ -676,8 +689,37 @@ namespace _unit
                 return _ishookexists;
             }
 
-			#endregion
-		}
+            public bool _ishookunique(ulong _hook)
+            {
+                bool _isunique = true;
+                KeyValuePair<ulong, _typecontainer>? _typecontainerset = null;
+                try
+                {
+                    _typecontainerset = _datacontainer._unitcontainer._fetchtypecontainerset().Count > 0 ? _datacontainer._unitcontainer._fetchtypecontainerset().Where<KeyValuePair<ulong, _typecontainer>>(_x => _x.Key == _hook).First() : null;
+                }
+                catch { }
+                if (_typecontainerset == null)
+                {
+                    _typeform? _typeform = null;
+                    try
+                    {
+                        _typeform = this._typeformset.Count > 0 ? this._typeformset.Where(_x => _x._hook == _hook).First() : null;
+                    }
+                    catch { }
+                    if (_typeform != null)
+                    {
+                        _isunique = false;
+                    }
+                }
+                else
+                {
+                    _isunique = false;
+                }
+                return _isunique;
+            }
+
+            #endregion
+        }
 
 		#endregion
 	}
