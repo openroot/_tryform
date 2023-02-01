@@ -123,9 +123,9 @@ namespace _unit
 					if (_typeform._typeparent > 0)
 					{
                         _datacontainer._typecontainer? _typecontainer = _datacontainer._unitcontainer._fetchtypecontainerbyhook(_typeform._typeparent);
-						if (_typecontainer != null && _typecontainer._type != null)
+						if (_typecontainer != null && _typecontainer._retrievetype() != null)
 						{
-							_typeparent = _typecontainer._type;
+							_typeparent = _typecontainer._retrievetype();
                         }
 						else
 						{
@@ -192,7 +192,7 @@ namespace _unit
 					ulong? _hook = _typeform._trygetnumerichook(_property.Value);
 					if (_hook != null)
 					{
-						_type = _datacontainer._unitcontainer._fetchtypecontainerbyhook(_hook ?? 0)?._type;
+						_type = _datacontainer._unitcontainer._fetchtypecontainerbyhook(_hook ?? 0)?._retrievetype();
 					}
 					else
 					{
@@ -725,7 +725,7 @@ namespace _unit
                     _datacontainer._typecontainer? _typecontainer = _datacontainer._unitcontainer._fetchtypecontainerbyhook(_hook);
                     if (_typecontainer != null && _typecontainer._entitycontainer != null)
                     {
-                        Type? _type = _typecontainer._type;
+                        Type? _type = _typecontainer._retrievetype();
                         if (_type != null)
                         {
                             object? _createdentitytemp = Activator.CreateInstance(_type);
@@ -916,7 +916,7 @@ namespace _unit
         {
             public static Dictionary<ulong, _typecontainer> _typecontainerset = new Dictionary<ulong, _typecontainer>() { };
 
-            public static bool _assigntype(ulong _hook, _typeconfiguration._typeform _typeform, Type _type)
+            public static bool _assigntype(ulong _hook, _typeform _typeform, Type _type)
             {
                 bool _issuccess = false;
 
@@ -1007,9 +1007,9 @@ namespace _unit
 
         public class _typecontainer
         {
+            private Type _type { get; set; }
             public ulong _hook { get; set; }
             public _typeform _typeform { get; set; }
-            public Type _type { get; set; }
             public _entitycontainer _entitycontainer { get; set; }
 
             public _typecontainer(ulong _hook, _typeform _typeform, Type _type)
@@ -1023,7 +1023,7 @@ namespace _unit
                             this._hook = _hook;
                             this._typeform = _typeform;
                             this._type = _type;
-                            this._entitycontainer = new _entitycontainer(_hook);
+                            this._entitycontainer = new _entitycontainer();
                         }
                         else
                         {
@@ -1040,6 +1040,11 @@ namespace _unit
                     throw new Exception("Provided _typeform is null.");
                 }
             }
+
+			public Type _retrievetype()
+			{
+				return this._type;
+			}
         }
 
         #endregion
@@ -1048,12 +1053,11 @@ namespace _unit
 
         public class _entitycontainer
         {
-            public ulong _hook { get; set; }
-            public List<object> _entityset = new List<object>() { };
+            public List<object> _entityset { get; set; }
 
-            public _entitycontainer(ulong _hook)
+            public _entitycontainer()
             {
-                this._hook = _hook;
+                this._entityset = new List<object>() { };
             }
 
             public bool _assignentity(object _entity)
