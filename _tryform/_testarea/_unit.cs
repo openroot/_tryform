@@ -210,8 +210,9 @@ namespace _unit
 
                     try
                     {
-                        _instance _xy_i1 = new _instance(1);
-                        _instance _pq_i1 = new _instance(2);
+                        _instance _xy_i1 = new _instance(1, 1);
+                        _instance _xy_i2 = new _instance(1, 2);
+                        _instance _pq_i1 = new _instance(2, 1);
                         _instance _st_i1 = new _instance(3);
                         _instance _st_i2 = new _instance(3);
 
@@ -221,11 +222,11 @@ namespace _unit
                             {"_isdead", true}
                         });
                         _pq_i1._assignproperties(new Dictionary<string, object?>() {
-                            {"_xy", _xy_i1._retrieveentity()},
+                            {"_xy", 1},
                             {"_tag", "Computer Scientist"}
                         });
                         _st_i1._assignproperties(new Dictionary<string, object?>() {
-                            {"_xy", _xy_i1._retrieveentity()},
+                            {"_xy", 1},
                             {"_tag", "Software"},
                             {"_service", "Engineering"},
                             {"_api", true}

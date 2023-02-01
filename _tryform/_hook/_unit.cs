@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using Label = System.Reflection.Emit.Label;
 using System.Runtime.InteropServices;
@@ -703,7 +704,7 @@ namespace _unit
         {
 			if (_hook > 0)
 			{
-				this._entity = _trycreateentity(_hook) ?? throw new Exception("_entity not created.");
+				this._entity = _trycreateentity(_hook, _fence) ?? throw new Exception("_entity not created.");
                 this._type = this._entity.GetType() ?? throw new Exception("_type not created.");
 				this._fence = _fence;
 			}
@@ -717,7 +718,7 @@ namespace _unit
 
         #region private
 
-        private static object? _trycreateentity(ulong _hook)
+        private static object? _trycreateentity(ulong _hook, [Optional]ulong? _fence)
         {
             object? _createdentity = null;
             if (_hook > 0)
@@ -725,7 +726,7 @@ namespace _unit
                 try
                 {
                     _datacontainer._typecontainer? _typecontainer = _datacontainer._unitcontainer._fetchtypecontainerbyhook(_hook);
-                    if (_typecontainer != null && _typecontainer._entitycontainer != null)
+                    if (_typecontainer != null && _typecontainer._retrieveentitycontainer() != null)
                     {
                         Type? _type = _typecontainer._retrievetype();
                         if (_type != null)
@@ -733,7 +734,7 @@ namespace _unit
                             object? _createdentitytemp = Activator.CreateInstance(_type);
                             if (_createdentitytemp != null)
                             {
-                                if (_typecontainer._entitycontainer._assignentity(_createdentitytemp))
+                                if (_typecontainer._retrieveentitycontainer()._assignentity(_createdentitytemp, _fence))
                                 {
                                     _createdentity = _createdentitytemp;
                                 }
@@ -763,14 +764,29 @@ namespace _unit
             {
 				if (_property != null)
 				{
-					try
-					{
-						_property.SetValue(_entity, _value, null);
-					}
-					catch (Exception _exception)
-					{
-						throw new Exception(_exception.Message);
-					}
+                    object? _valuefence = null;
+                    if (this._trygetnumericfenceandvalue(_property.PropertyType, _value, out _valuefence) != null)
+                    {
+                        try
+                        {
+                            _property.SetValue(_entity, _valuefence, null);
+                        }
+                        catch (Exception _exception)
+                        {
+                            throw new Exception(_exception.Message);
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            _property.SetValue(_entity, _value, null);
+                        }
+                        catch (Exception _exception)
+                        {
+                            throw new Exception(_exception.Message);
+                        }
+                    }
 				}
 				else
 				{
@@ -811,20 +827,39 @@ namespace _unit
             return _value;
         }
 
-        public ulong? _trygetnumericfense(object _value)
+        public ulong? _trygetnumericfenceandvalue(Type _type, object? _value, out object? _valuefence)
         {
-            ulong? _retrievedfense = null;
+            ulong? _retrievedfence = null;
+            _valuefence = null;
             try
             {
-                string? _valueasstring = _value as string;
+                string? _valueasstring = (_value ?? string.Empty).ToString();
                 if (!string.IsNullOrEmpty(_valueasstring))
                 {
-                    bool _ispossiblefense = _valueasstring.All(_charset => "0123456789".Contains(_charset));
-                    ulong _fensepossible = 0;
-                    ulong.TryParse(_value as string, out _fensepossible);
-                    if (_fensepossible > 0)
+                    bool _ispossiblefence = _valueasstring.All(_charset => "0123456789".Contains(_charset));
+                    ulong _fencepossible = 0;
+                    ulong.TryParse(_valueasstring, out _fencepossible);
+                    if (_fencepossible > 0)
                     {
-                        // TODO: try cross-check if weather _fense is ava and if ava then type matches with config , if found then return as _retrievedfense
+                        foreach (KeyValuePair<ulong, _datacontainer._typecontainer> _typecontainerset in _datacontainer._unitcontainer._fetchtypecontainerset())
+                        {
+                            _datacontainer._typecontainer _typecontainer = _typecontainerset.Value;
+                            if (_typecontainer != null)
+                            {
+                                if (_typecontainer._retrievetype() == _type)
+                                {
+                                    foreach (KeyValuePair<object, ulong?> _entity in _typecontainer._entitycontainer._entityset)
+                                    {
+                                        if ((_entity.Value ?? 0) == _fencepossible)
+                                        {
+                                            _valuefence = _entity.Key;
+                                            _retrievedfence = _fencepossible;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -832,7 +867,7 @@ namespace _unit
             {
                 throw new Exception(_exception.Message);
             }
-            return _retrievedfense;
+            return _retrievedfence;
         }
 
         #endregion
@@ -940,7 +975,8 @@ namespace _unit
 
         public static class _unitcontainer
         {
-            public static Dictionary<ulong, _typecontainer> _typecontainerset = new Dictionary<ulong, _typecontainer>() { };
+            private static Dictionary<ulong, _typecontainer> _typecontainerse = new Dictionary<ulong, _typecontainer>() { };
+            public static Dictionary<ulong, _typecontainer> _typecontainerset { get { return _typecontainerse; } }
 
             public static bool _assigntype(ulong _hook, _typeform _typeform, Type _type)
             {
@@ -954,9 +990,9 @@ namespace _unit
                         {
                             try
                             {
-                                if (!_typecontainerset.ContainsKey(_hook))
+                                if (!_typecontainerse.ContainsKey(_hook))
                                 {
-                                    _typecontainerset.Add(_hook, new _typecontainer(_hook, _typeform, _type));
+                                    _typecontainerse.Add(_hook, new _typecontainer(_hook, _typeform, _type));
                                 }
                                 _issuccess = true;
                             }
@@ -988,7 +1024,7 @@ namespace _unit
                 _typecontainer? _typecontainer = null;
                 try
                 {
-                    _typecontainerset.TryGetValue(_hook, out _typecontainer);
+                    _typecontainerse.TryGetValue(_hook, out _typecontainer);
                 }
                 catch (Exception _exception)
                 {
@@ -999,7 +1035,7 @@ namespace _unit
 
             public static Dictionary<ulong, _typecontainer> _fetchtypecontainerset()
             {
-                return _typecontainerset;
+                return _typecontainerse;
             }
 
             public static string? _datareal(bool _writeindented, [Optional]ulong _hook)
@@ -1034,9 +1070,12 @@ namespace _unit
         public class _typecontainer
         {
             private Type _type { get; set; }
-            public ulong _hook { get; set; }
-            public _typeform _typeform { get; set; }
-            public _entitycontainer _entitycontainer { get; set; }
+            private ulong _hoo { get; set; }
+            private _typeform _typefor { get; set; }
+            private _entitycontainer _entitycontaine { get; set; }
+            public ulong _hook { get { return _hoo; } }
+            public _typeform _typeform { get { return _typefor; } }
+            public _entitycontainer _entitycontainer { get { return _entitycontaine; } }
 
             public _typecontainer(ulong _hook, _typeform _typeform, Type _type)
             {
@@ -1046,10 +1085,10 @@ namespace _unit
                     {
                         if (_typeform._hook == _hook)
                         {
-                            this._hook = _hook;
-                            this._typeform = _typeform;
+                            this._hoo = _hook;
+                            this._typefor = _typeform;
                             this._type = _type;
-                            this._entitycontainer = new _entitycontainer();
+                            this._entitycontaine = new _entitycontainer();
                         }
                         else
                         {
@@ -1071,6 +1110,11 @@ namespace _unit
 			{
 				return this._type;
 			}
+
+            public _entitycontainer _retrieveentitycontainer()
+			{
+				return this._entitycontaine;
+			}
         }
 
         #endregion
@@ -1079,21 +1123,43 @@ namespace _unit
 
         public class _entitycontainer
         {
-            public List<object> _entityset { get; set; }
+            private List<KeyValuePair<object, ulong?>> _entityse { get; set; }
+            public List<KeyValuePair<object, ulong?>> _entityset { get { return _entityse; } }
 
             public _entitycontainer()
             {
-                this._entityset = new List<object>() { };
+                this._entityse = new List<KeyValuePair<object, ulong?>>() { };
             }
 
-            public bool _assignentity(object _entity)
+            private bool _isfenceunique(ulong _fence)
+            {
+                bool _isunique = true;
+                foreach (KeyValuePair<object, ulong?> _entity in this._entityse)
+                {
+                    if ((_entity.Value ?? 0) == _fence)
+                    {
+                        _isunique = false;
+                        break;
+                    }
+                }
+                return _isunique;
+            }
+
+            public bool _assignentity(object _entity, [Optional]ulong? _fence)
             {
                 bool _issuccess = false;
-                if (this._entityset != null)
+                if (this._entityse != null)
                 {
+                    if ((_fence ?? 0) > 0)
+                    {
+                        if (!this._isfenceunique(_fence ?? 0))
+                        {
+                            throw new Exception("Provided _fence is not unique.");
+                        }
+                    }
                     try
                     {
-                        this._entityset.Add(_entity);
+                        this._entityse.Add(new KeyValuePair<object, ulong?>(_entity, _fence) { });
                         _issuccess = true;
                     }
                     catch (Exception _exception)
