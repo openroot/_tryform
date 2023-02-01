@@ -10,8 +10,6 @@ namespace _tryform
             var _test = new _test();
 
             _test._createunit_loremipsum();
-            _test._traversemodules('c');
-            _test._traversemodules('o');
         }
     }
 }
