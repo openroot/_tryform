@@ -678,13 +678,15 @@ namespace _unit
             public bool _ishookexistslocal(ulong _hook)
             {
                 bool _ishookexists = false;
-                foreach (_typeform _typeform in this._typeformset)
+                _typeform? _typeform = null;
+                try
                 {
-                    if (_typeform._hook == _hook)
-                    {
-                        _ishookexists = true;
-                        break;
-                    }
+                    _typeform = this._typeformset.Count > 0 ? this._typeformset.Where(_x => _x._hook == _hook).First() : null;
+                }
+                catch { }
+                if (_typeform != null)
+                {
+                    _ishookexists = true;
                 }
                 return _ishookexists;
             }
