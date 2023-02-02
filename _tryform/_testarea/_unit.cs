@@ -9,14 +9,12 @@ namespace _unit
 {
     public class _test
     {
-        #region attribute
+        #region tests
 
-        #endregion
-
-        #region Functionality named Module Operations
-
-        public void _createunit_loremipsum()
+        public bool _unitloremipsum()
         {
+            bool _issuccess = false;
+
             List<_typeconfiguration._typeraw> _sampletypearealconfiguration = _typeconfiguration._fetchsampletyperawset();
             string? _sampletyperealconfiguration = _typeconfiguration._jsonreal(_sampletypearealconfiguration);
             
@@ -78,7 +76,12 @@ namespace _unit
 
                         Console.WriteLine("_entity(s) created.");
                         string? _datarealcomplete = _datacontainer._unitcontainer._datareal(true);
-                        string? _datarealhook3 = _datacontainer._unitcontainer._datareal(true, 13);
+                        string? _datarealhook13 = _datacontainer._unitcontainer._datareal(true, 13);
+
+                        if (!string.IsNullOrEmpty(_datarealcomplete) && !string.IsNullOrEmpty(_datarealhook13))
+                        {
+                            _issuccess = true;
+                        }
                     }
                     catch (Exception _exception)
                     {
@@ -86,6 +89,8 @@ namespace _unit
                     }
                 }
             }
+
+            return _issuccess;
         }
 
         #endregion

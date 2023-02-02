@@ -7,9 +7,10 @@ namespace _tryform
         {
             InitializeComponent();
 
+            bool _istestssuccess = false;
             var _test = new _test();
 
-            _test._createunit_loremipsum();
+            _test._unitloremipsum();
         }
     }
 }
