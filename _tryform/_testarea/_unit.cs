@@ -9,6 +9,12 @@ namespace _unit
 {
     public class _test
     {
+        #region attribute
+
+        //public delegate bool _unitloremipsum();
+
+        #endregion
+
         #region tests
 
         public bool _unitloremipsum()
