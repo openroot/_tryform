@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,13 +12,23 @@ namespace _unit
     {
         #region attribute
 
-        //public delegate bool _unitloremipsum();
+        public delegate bool _templateunitloremipsum(string[] _args);
+        public _templateunitloremipsum _testunitloremipsum;
+
+        #endregion
+
+        #region constructor
+
+        public _test()
+        {
+            this._testunitloremipsum = new _templateunitloremipsum(this._unitloremipsum);
+        }
 
         #endregion
 
         #region tests
 
-        public bool _unitloremipsum()
+        public bool _unitloremipsum(string[] _args)
         {
             bool _issuccess = false;
 
@@ -95,7 +106,7 @@ namespace _unit
                     }
                 }
             }
-
+            
             return _issuccess;
         }
 

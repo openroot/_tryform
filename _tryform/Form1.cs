@@ -6,11 +6,16 @@ namespace _tryform
         public Form1()
         {
             InitializeComponent();
+        }
 
-            bool _istestssuccess = false;
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            bool _istestsuccess = false;
+
             var _test = new _test();
 
-            _test._unitloremipsum();
+            string[] _args = new string[] { };
+            _istestsuccess = _test._testunitloremipsum(_args);
         }
     }
 }
