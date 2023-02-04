@@ -792,7 +792,7 @@ namespace _unit
             bool _issuccess = false;
             if (_instancerawset != null)
             {
-                _issuccess = this._feedtypeformset(_instancerawset);
+                _issuccess = this._feedinstanceformset(_instancerawset);
             }
             else
             {
@@ -909,7 +909,7 @@ namespace _unit
 
         public class _instanceform
         {
-            public _instanceform()
+            public _instanceform(List<_instanceform> _instanceformset, _instanceraw _instanceraw)
             {
 
             }
