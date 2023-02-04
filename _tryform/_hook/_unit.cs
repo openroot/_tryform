@@ -723,8 +723,82 @@ namespace _unit
             #endregion
         }
 
-		#endregion
-	}
+        #endregion
+    }
+
+    #endregion
+
+    #region _instanceconfiguration
+
+    public class _instanceconfiguration
+    {
+        #region attribute
+
+        private string? _instancereal;
+        private List<_instanceraw>? _instancerawset;
+        private List<_instanceform> _instanceformset = new List<_instanceform>();
+
+        #endregion
+
+        #region constructor
+
+        public _instanceconfiguration([Optional] string _instancereal)
+        {
+            if (this._isformjsonreal(_typereal))
+            {
+                List<_typeraw>? _typerawset = _instanceconfiguration._jsonareal(_instancereal);
+                if (this._process(_typerawset))
+                {
+                    this._typerawset = _typerawset;
+                    this._typereal = _typereal;
+                }
+                else
+                {
+                    throw new Exception("Unable to process _typeconfiguration.");
+                }
+            }
+            else
+            {
+                throw new Exception("_typereal is not in form.");
+            }
+        }
+
+        public _instanceconfiguration([Optional] List<_instanceraw> _instancerawset)
+        {
+            if (_typerawset != null)
+            {
+                if (this._process(_typerawset))
+                {
+                    this._typerawset = _typerawset;
+                    this._typereal = _typeconfiguration._jsonreal(_typerawset);
+                }
+                else
+                {
+                    throw new Exception("Unable to process _typeconfigurations.");
+                }
+            }
+            else
+            {
+                throw new Exception("Provided _types is null.");
+            }
+        }
+
+        #endregion
+
+        public class _instanceraw
+        {
+            public ulong _hook;
+            public ulong? _fence;
+        }
+
+        public class _instanceform
+        {
+            public _instanceform()
+            {
+
+            }
+        }
+    }
 
     #endregion
 
