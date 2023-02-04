@@ -346,7 +346,7 @@ namespace _unit
             }
             else
             {
-                throw new Exception("Provided _types is null.");
+                throw new Exception("Provided _typerawset is null.");
             }
         }
 
@@ -363,7 +363,7 @@ namespace _unit
             }
             else
             {
-                throw new Exception("_types are null.");
+                throw new Exception("_typerawset are null.");
             }
             return _issuccess;
         }
@@ -373,15 +373,15 @@ namespace _unit
 			bool _issuccess = false;
 			try
 			{
-				foreach (_typeraw _type in _typerawset)
+				foreach (_typeraw _typeraw in _typerawset)
 				{
-					this._typeformset.Add(new _typeform(this._typeformset, _type));
+					this._typeformset.Add(new _typeform(this._typeformset, _typeraw));
 				}
 				_issuccess = true;
 			}
 			catch (Exception _exception)
 			{
-				throw new Exception("_type not added as _typeform", _exception);
+				throw new Exception("_typeraw not added as _typeform", _exception);
 			}
             return _issuccess;
 		}
@@ -521,14 +521,14 @@ namespace _unit
 
             #region constructor
 
-            public _typeform(List<_typeform> _typeformset, _typeraw _type)
+            public _typeform(List<_typeform> _typeformset, _typeraw _typeraw)
 			{
 				this._typeformset = _typeformset;
                 this._hook = 0;
 				this._name = string.Empty;
 				this._propertyset = new Dictionary<string, string>() { };
 				this._typeparent = 0;
-				if (!this._process(_type))
+				if (!this._process(_typeraw))
 				{
 					throw new Exception("Provided _type is unsuccessfull processed.");
 				}
@@ -538,17 +538,17 @@ namespace _unit
 
             #region private
 
-            private bool _process(_typeraw _type)
+            private bool _process(_typeraw _typeraw)
 			{
 				bool _issuccess = true;
 
-				if (_type != null)
+				if (_typeraw != null)
 				{
-					if (_type._hook > 0 && _datacontainer._unitcontainer._fetchtypecontainerbyhook(_type._hook) == null)
+					if (_typeraw._hook > 0 && _datacontainer._unitcontainer._fetchtypecontainerbyhook(_typeraw._hook) == null)
 					{
-                        if (this._ishookunique(_type._hook))
+                        if (this._ishookunique(_typeraw._hook))
                         {
-                            this._hook = _type._hook;
+                            this._hook = _typeraw._hook;
                         }
                         else
                         {
@@ -556,9 +556,9 @@ namespace _unit
                             throw new Exception("Provided _hook is not unique.");
                         }
 
-						if (!string.IsNullOrEmpty((_type._name ?? string.Empty).Trim()))
+						if (!string.IsNullOrEmpty((_typeraw._name ?? string.Empty).Trim()))
 						{
-							this._name = _type._name ?? string.Empty;
+							this._name = _typeraw._name ?? string.Empty;
                         }
                         else
                         {
@@ -566,9 +566,9 @@ namespace _unit
                             throw new Exception("Provided _name is null or empty.");
                         }
 
-						if (_type._propertyset != null)
+						if (_typeraw._propertyset != null)
 						{
-							foreach (KeyValuePair<string, string> _property in _type._propertyset)
+							foreach (KeyValuePair<string, string> _property in _typeraw._propertyset)
 							{
 								if (!string.IsNullOrEmpty(_property.Key.Trim()))
 								{
@@ -606,11 +606,11 @@ namespace _unit
                             }
                         }
 
-						if (_type._typeparent != null)
+						if (_typeraw._typeparent != null)
 						{
-							if (_type._typeparent > 0 && (_datacontainer._unitcontainer._fetchtypecontainerbyhook(_type._typeparent ?? 0) != null || this._ishookexistslocal(_type._typeparent ?? 0)))
+							if (_typeraw._typeparent > 0 && (_datacontainer._unitcontainer._fetchtypecontainerbyhook(_typeraw._typeparent ?? 0) != null || this._ishookexistslocal(_typeraw._typeparent ?? 0)))
 							{
-								this._typeparent = _type._typeparent ?? 0;
+								this._typeparent = _typeraw._typeparent ?? 0;
 							}
 							else
 							{
@@ -744,43 +744,159 @@ namespace _unit
 
         public _instanceconfiguration([Optional] string _instancereal)
         {
-            if (this._isformjsonreal(_typereal))
+            if (this._isformjsonreal(_instancereal))
             {
-                List<_typeraw>? _typerawset = _instanceconfiguration._jsonareal(_instancereal);
-                if (this._process(_typerawset))
+                List<_instanceraw>? _instancerawset = _instanceconfiguration._jsonareal(_instancereal);
+                if (this._process(_instancerawset))
                 {
-                    this._typerawset = _typerawset;
-                    this._typereal = _typereal;
+                    this._instancerawset = _instancerawset;
+                    this._instancereal = _instancereal;
                 }
                 else
                 {
-                    throw new Exception("Unable to process _typeconfiguration.");
+                    throw new Exception("Unable to process _instanceconfiguration.");
                 }
             }
             else
             {
-                throw new Exception("_typereal is not in form.");
+                throw new Exception("_instancereal is not in form.");
             }
         }
 
         public _instanceconfiguration([Optional] List<_instanceraw> _instancerawset)
         {
-            if (_typerawset != null)
+            if (_instancerawset != null)
             {
-                if (this._process(_typerawset))
+                if (this._process(_instancerawset))
                 {
-                    this._typerawset = _typerawset;
-                    this._typereal = _typeconfiguration._jsonreal(_typerawset);
+                    this._instancerawset = _instancerawset;
+                    this._instancereal = _instanceconfiguration._jsonreal(_instancerawset);
                 }
                 else
                 {
-                    throw new Exception("Unable to process _typeconfigurations.");
+                    throw new Exception("Unable to process _instanceconfiguration.");
                 }
             }
             else
             {
-                throw new Exception("Provided _types is null.");
+                throw new Exception("Provided _instancerawset is null.");
             }
+        }
+
+        #endregion
+
+        #region private
+
+        private bool _process(List<_instanceraw>? _instancerawset)
+        {
+            bool _issuccess = false;
+            if (_instancerawset != null)
+            {
+                _issuccess = this._feedtypeformset(_instancerawset);
+            }
+            else
+            {
+                throw new Exception("_instancerawset are null.");
+            }
+            return _issuccess;
+        }
+
+        private bool _feedinstanceformset(List<_instanceraw> _instancerawset)
+        {
+            bool _issuccess = false;
+            try
+            {
+                foreach (_instanceraw _instanceraw in _instancerawset)
+                {
+                    this._instanceformset.Add(new _instanceform(this._instanceformset, _instanceraw));
+                }
+                _issuccess = true;
+            }
+            catch (Exception _exception)
+            {
+                throw new Exception("_instanceraw not added as _instanceform", _exception);
+            }
+            return _issuccess;
+        }
+
+        private bool _isformjsonreal(string _instancereal)
+        {
+            bool _isform = false;
+
+            List<_instanceraw>? _instanceareal = _instanceconfiguration._jsonareal(_instancereal);
+            if (_instanceareal != null)
+            {
+                string? _triedjsonreal = _instanceconfiguration._jsonreal(_instanceareal);
+                if (_triedjsonreal != null)
+                {
+                    if (_instanceareal.Equals(_triedjsonreal))
+                    {
+                        _isform = true;
+                    }
+                }
+            }
+
+            return _isform;
+        }
+
+        #endregion
+
+        #region public
+
+        public List<_instanceform> _retrieveinstanceformset()
+        {
+            return this._instanceformset;
+        }
+
+        public bool _checkinstancereal(string _instancereal)
+        {
+            bool _isform = false;
+
+            _isform = this._isformjsonreal(_instancereal);
+
+            return _isform;
+        }
+
+        public static string? _jsonreal(List<_instanceraw> _instancerawset)
+        {
+            string? _jsonreal = null;
+            JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true };
+            try
+            {
+                _jsonreal = JsonSerializer.Serialize<List<_instanceraw>>(_instancerawset, _options);
+            }
+            catch (Exception _exception)
+            {
+                throw new Exception(_exception.Message);
+            }
+            return _jsonreal;
+        }
+
+        public static List<_instanceraw>? _jsonareal(string _instancereal)
+        {
+            List<_instanceraw>? _jsonareal = null;
+            JsonSerializerOptions _options = new JsonSerializerOptions() { IncludeFields = true };
+            try
+            {
+                _jsonareal = JsonSerializer.Deserialize<List<_instanceraw>>(_instancereal, _options)!;
+            }
+            catch (Exception _exception)
+            {
+                throw new Exception(_exception.Message);
+            }
+            return _jsonareal;
+        }
+
+        public static List<_instanceraw> _fetchsampleinstancerawset()
+        {
+            List<_instanceraw> _sampleinstancerawset = new List<_instanceraw>() {
+                new _instanceraw() { _hook = 1, _fence = 1 },
+                new _instanceraw() { _hook = 1, _fence = 2 },
+                new _instanceraw() { _hook = 2, _fence = 1 },
+                new _instanceraw() { _hook = 13 },
+                new _instanceraw() { _hook = 13 }
+            };
+            return _sampleinstancerawset;
         }
 
         #endregion
