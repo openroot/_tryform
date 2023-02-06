@@ -530,7 +530,7 @@ namespace _unit
 				this._typeparent = 0;
 				if (!this._process(_typeraw))
 				{
-					throw new Exception("Provided _type is unsuccessfull processed.");
+					throw new Exception("Provided _type is unsuccessfull to process.");
 				}
 			}
 
@@ -728,7 +728,7 @@ namespace _unit
 
     #endregion
 
-    #region _instanceconfiguration
+    #region class _instanceconfiguration
 
     public class _instanceconfiguration
     {
@@ -909,12 +909,129 @@ namespace _unit
 
         public class _instanceform
         {
+            private List<_instanceform> _instanceformset;
+            public ulong _hook;
+            public ulong? _fence;
+
             public _instanceform(List<_instanceform> _instanceformset, _instanceraw _instanceraw)
             {
+                this._instanceformset = _instanceformset;
+                this._hook = 0;
+                if (!this._process(_instanceraw))
+                {
+                    throw new Exception("Provided _instanceraw is unsuccessfull to process.");
+                }
+            }
 
+            private bool _process(_instanceraw _instanceraw)
+            {
+                bool _issuccess = false;
+
+                if (_instanceraw != null)
+                {
+                    if (_instanceraw._hook > 0)
+                    {
+                        _datacontainer._typecontainer? _typecontainer = _datacontainer._unitcontainer._fetchtypecontainerbyhook(_instanceraw._hook);
+
+                        if (_typecontainer != null)
+                        {
+                            this._hook = _instanceraw._hook;
+                            _issuccess = true;
+
+                            if (_instanceraw._fence != null && _instanceraw._fence > 0)
+                            {
+                                _issuccess = false;
+                                try
+                                {
+                                    if (_typecontainer._retrieveentitycontainer() != null)
+                                    {
+                                        Type? _type = _typecontainer._retrievetype();
+                                        if (_type != null)
+                                        {
+                                            if (this._isfenceunique(_instanceraw._hook, (_instanceraw._fence ?? 0)))
+                                            {
+                                                this._fence = _instanceraw._fence;
+                                                _issuccess = true;
+                                            }
+                                            else
+                                            {
+                                                throw new Exception("Provided _fence is either 0 or not unique.");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            throw new Exception("Provided _type is null.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new Exception("_entitycontainer of provided _hook is null.");
+                                    }
+                                }
+                                catch (Exception _exception)
+                                {
+                                    throw new Exception("Could not create _instanceform", _exception);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("_typecontainer of provided _hook is null.");
+                        }
+                    }
+                }
+
+                return _issuccess;
+            }
+
+            public bool _isfenceunique(ulong _hook, ulong _fence)
+            {
+                bool _isunique = true;
+                if (_hook > 0 && _fence > 0)
+                {
+                    KeyValuePair<ulong, _typecontainer>? _typecontainerset = null;
+                    try
+                    {
+                        _typecontainerset = _datacontainer._unitcontainer._fetchtypecontainerset().Count > 0 ? _datacontainer._unitcontainer._fetchtypecontainerset().Where<KeyValuePair<ulong, _typecontainer>>(_x => _x.Key == _hook).First() : null;
+                    }
+                    catch { }
+                    if (_typecontainerset != null)
+                    {
+                        KeyValuePair<object, ulong?>? _entityset = null;
+                        try
+                        {
+                            _entityset = _typecontainerset.Value.Value._entitycontainer._entityset.Count > 0 ? _typecontainerset.Value.Value._entitycontainer._entityset.Where<KeyValuePair<object, ulong?>>(_x => (_x.Value ?? 0) == _fence).First() : null;
+                        }
+                        catch { }
+                        if (_entityset != null)
+                        {
+                            _isunique = false;
+                        }
+                    }
+                    else
+                    {
+                        _instanceform? _instanceform = null;
+                        try
+                        {
+                            _instanceform = this._instanceformset.Count > 0 ? this._instanceformset.Where(_x => _x._fence == _fence).First() : null;
+                        }
+                        catch { }
+                        if (_instanceform != null)
+                        {
+                            _isunique = false;
+                        }
+                    }
+                }
+                else
+                {
+                    _isunique = false;
+                }
+                return _isunique;
             }
         }
     }
+
+
 
     #endregion
 
